@@ -2,7 +2,6 @@ package com.cs336final;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-//import java.sql.SQLException;
 import java.sql.SQLException;
 
 public class bookingDB{
@@ -11,12 +10,21 @@ public class bookingDB{
 	}
 	
 	public Connection getConnection() {
-		String connectionURL = "jdbc:mysql://localhost:3306/bookingDB";
+		String connectionURL = "jdbc:mysql://localhost:3306/railwayBooking";
 		Connection connection = null;
 		
-		//can put in better error checking later
+		
+		//just took this directly from the sample project, can tweak later
 		try {
-			connection = DriverManager.getConnection(connectionURL,"root", "root");
+			//Load JDBC driver - the interface standardizing the connection procedure. Look at WEB-INF\lib for a mysql connector jar file, otherwise it fails.
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			connection = DriverManager.getConnection(connectionURL,"root", "R41$Eyoury4y4y4");
 		}catch(SQLException error){
 			error.printStackTrace();
 		}
