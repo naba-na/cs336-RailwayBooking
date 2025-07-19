@@ -24,7 +24,7 @@ public class bookingDB{
 		}
 		
 		try {
-			connection = DriverManager.getConnection(connectionURL,"root", "");
+			connection = DriverManager.getConnection(connectionURL,"root", "root");
 		}catch(SQLException error){
 			error.printStackTrace();
 		}
