@@ -1,3 +1,6 @@
+//change the password for your sql database and then rename/copy this file to/as bookingDB.java
+
+
 package com.cs336final;
 
 import java.sql.Connection;
@@ -12,6 +15,9 @@ public class bookingDB{
 	public Connection getConnection() {
 		String connectionURL = "jdbc:mysql://localhost:3306/railwayBooking";
 		Connection connection = null;
+
+		String username = "root";
+		String password = "passwordhere";
 		
 		
 		//just took this directly from the sample project, can tweak later
@@ -24,7 +30,7 @@ public class bookingDB{
 		}
 		
 		try {
-			connection = DriverManager.getConnection(connectionURL,"root", "root");
+			connection = DriverManager.getConnection(connectionURL, username, password);
 		}catch(SQLException error){
 			error.printStackTrace();
 		}
