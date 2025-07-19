@@ -22,4 +22,21 @@ public class bookingDB{
 		}
 		return connection;
 	}
+	
+	public void closeConnection(Connection connection){
+		try {
+			connection.close();
+		}catch (SQLException error){
+			error.printStackTrace();
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		bookingDB dao = new bookingDB();
+		Connection connection = dao.getConnection();
+		
+		System.out.println(connection);		
+		dao.closeConnection(connection);
+	}
 }
