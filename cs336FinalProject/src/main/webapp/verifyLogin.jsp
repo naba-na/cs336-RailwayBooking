@@ -48,6 +48,7 @@
 		session.setAttribute("username", username);
 			
 	}
+	conn.close();
 	%>
 			
 	<a href="home.jsp">Click here to proceed to homepage</a>

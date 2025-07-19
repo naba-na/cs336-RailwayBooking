@@ -11,5 +11,7 @@
         <input type="submit" value="Login">
     </form>
     <p style="color:red;">${message}</p>
+    
+    <a href="registerPage.jsp">Register</a>
 </body>
 </html>
