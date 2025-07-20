@@ -33,42 +33,37 @@ int d_station_id = foundStations.getInt(2);
 
 
 
-//todo - print multiple times for different arrival/departure times to the same stops
-String findStops = "SELECT o.departure_time, d.arrival_time FROM stops o, stops d WHERE o.station_id = ? AND d.station_id = ?";
+String findStops = "SELECT o.departure_time, d.arrival_time FROM stops o, stops d WHERE o.station_id = ? AND d.station_id = ? AND o.departure_time < d.arrival_time";
 PreparedStatement psStops = conn.prepareStatement(findStops);
 psStops.setInt(1, o_station_id);
 psStops.setInt(2,d_station_id);
 ResultSet foundStops = psStops.executeQuery();
-foundStops.next();
-String o_time = foundStops.getString(1);
-String d_time = foundStops.getString(2);
 %>
 
 <h1>Schedule on <%= date %></h1>
-
+<h1>From <%=origin %> (<%=o_station_id %>) to <%=destination %> (<%=d_station_id %>)</h1>
 <br><br>
 
 <table>
 <tr>
-<th>Origin Station Number</th>
-<th>Name</th>
-<th>Destination Station Number</th>
-<th>Name</th>
 <th>Origin Departure Time</th>
 <th>Destination Arrival Time</th>
 </tr>
 
-<tr>
-<td><%=o_station_id %> </td>
-<td><%=origin %> </td>
-<td><%=d_station_id %> </td>
-<td><%=destination %> </td>
-<td><%=o_time %> </td>
-<td><%=d_time %> </td>
-</tr>
+<%
+while(foundStops.next()){
+	out.print("<tr>");
+	out.print("<td>");
+	out.print(foundStops.getString(1));
+	out.print("<td>");
+	out.print(foundStops.getString(2));
+	out.print("</tr>");
+} %>
+
 </table>
 
-<% conn.close(); %>
+ <% conn.close(); %>
+ 
 <br>
 <a href="home.jsp">back to home</a>
 </body>
