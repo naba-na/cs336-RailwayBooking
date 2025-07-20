@@ -38,23 +38,27 @@ CREATE TABLE stops(
 stop_id int AUTO_INCREMENT not null primary key,
 station_id int,
 nextstop_id int,
-arrival_datetime datetime,
-departure_datetime datetime,
+arrival_time time,
+departure_time time,
 foreign key (station_id) references stations(station_id),
 foreign key (nextstop_id) references stops(stop_id)
-    );
+);
 
 CREATE TABLE transitlines(
 line_name varchar(100) not null primary key,
 dest_stop_id int,
 origin_stop_id int,
 fare double,
+fareChild double,
+fareSenior double,
+fareDisabled double,
 foreign key (dest_stop_id) references stops(stop_id),
 foreign key (origin_stop_id) references stops(stop_id)
 );
 
 CREATE TABLE trains(
-train_id int AUTO_INCREMENT not null primary key,
+train_id int not null primary key,
+-- train_id must be a unique 4 digit number
 line_name varchar(100),
 foreign key (line_name) references transitlines(line_name)
 );
