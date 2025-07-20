@@ -20,7 +20,7 @@
         Last Name: <input type="text" name="lastname" required><br/>
         Email: <input type="text" name="email" required><br/>
         
-        <input type="submit" value="Login">
+        <input type="submit" value="Register">
     </form>
     <p style="color:red;">${message}</p>
 </body>

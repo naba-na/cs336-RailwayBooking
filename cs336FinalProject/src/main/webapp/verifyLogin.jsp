@@ -5,40 +5,35 @@
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
 
 <html>
-<head>
-</head>
-<body>
-<%
+	<body>
+		<%
 
-	bookingDB db = new bookingDB();
-	Connection conn = db.getConnection();
-	String username = request.getParameter("username");
-	String password = request.getParameter("password");
-	
-	String select = "SELECT * FROM customers WHERE username = ? AND password = ?";
-	PreparedStatement ps1 = conn.prepareStatement(select);
-	ps1.setString(1, username);
-	ps1.setString(2, password);
-	
-	ResultSet result = ps1.executeQuery();
-	%>
+		bookingDB db = new bookingDB();
+		Connection conn = db.getConnection();
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
 		
-	
-	<% 
-	
-	if(!result.isBeforeFirst()) { 
-		//print if the credentials dont exist in database
-		out.println("Invalid login. Please register first!");
-	} else { 
-		out.println("Successfully logged in!");
-		session.setAttribute("username", username);
+		String select = "SELECT * FROM %s WHERE username = '%s' AND password = '%s'"; // %s -> String.format()
+		
+		String accountTables[] = {"customers", "employees_reps", "employees_admins"};
+		String resultString = "Invalid login. Please check credentials or register for an account!";
+
+		for (String accType: accountTables) {
+			ResultSet result = conn.prepareStatement(String.format(select, accType, username, password)).executeQuery();
+
+			if (result.isBeforeFirst()) {
+				resultString = "Successfully logged in!";
+				session.setAttribute("username", username);
+				break;
+			}
+
 		}
-	
-	conn.close();
-	%>
+		out.println(resultString);
+		conn.close();
+		%>
 			
 	<a href="home.jsp">Click here to proceed to homepage</a>
 	
 
-</body>
+	</body>
 </html>

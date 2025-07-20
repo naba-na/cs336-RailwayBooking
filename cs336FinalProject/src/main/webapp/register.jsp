@@ -56,6 +56,6 @@ if(!result1.isBeforeFirst() && !result2.isBeforeFirst()){
 conn.close();
 %>
 <br>
-<a href="login.jsp">back to login</a>
+<a href="login.jsp">Return to Login</a>
 </body>
 </html>
