@@ -16,6 +16,10 @@
     <form action="register.jsp" method="post">
         Username: <input type="text" name="username" required><br/>
         Password: <input type="password" name="password" required><br/>
+        First Name: <input type="text" name="firstname" required><br/>
+        Last Name: <input type="text" name="lastname" required><br/>
+        Email: <input type="text" name="email" required><br/>
+        
         <input type="submit" value="Login">
     </form>
     <p style="color:red;">${message}</p>
