@@ -1,11 +1,28 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*" %>
 
 <%@ page session="true" %>
+
+<script>
+         function goToAdminPanel() {
+            window.location.assign("adminPanel.jsp");
+         }
+         function goToRepPanel() {
+            window.location.assign("repPanel.jsp");
+         }
+</script>
+
 <%
     String username = (String) session.getAttribute("username");
-    if (username == null) {
+    String acc_type = (String) session.getAttribute("acc_type");
+    if (username == null || acc_type == null) {
         response.sendRedirect("login.jsp");
         return;
+    }
+    if (acc_type.equals("admin")) {
+        %> <button type="button" onclick="goToAdminPanel()">Admin Panel</button> <%
+    }
+    else if (acc_type.equals("rep")) {
+        %> <button type="button" onclick="goToRepPanel()">Representative Panel</button> <%
     }
 %>
 <html>
@@ -39,6 +56,5 @@
     	<input type="radio" name="sortDirect" value="DESC"/>Descending
     	<input type="submit" value="Search">
     </form>
-    
 </body>
 </html>
