@@ -25,5 +25,20 @@
     	Date: <input type="date" name="date" required>
     	<input type="submit" value="Search">
     </form>
+    
+    <h2>Search train stops</h2>
+    <form action="searchStops.jsp" method="post">
+    	Train ID: <input type="text" name="trainid" required>
+    	<label for="sortValue">Sort by:</label> 
+    		<select name="sortValue" id="sortValue">
+    			<option value="t.fare">Fare</option>
+    			<option value="s.arrival_time">Stop Arrival Time</option>
+    			<option value="s.departure_time">Stop Departure Time</option>
+    		</select>
+    	<input type="radio" name="sortDirect" value="ASC"/>Ascending
+    	<input type="radio" name="sortDirect" value="DESC"/>Descending
+    	<input type="submit" value="Search">
+    </form>
+    
 </body>
 </html>
