@@ -13,22 +13,15 @@
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
-		String select = "SELECT * FROM %s WHERE username = '%s' AND password = '%s'"; // %s -> String.format()
-		
-		String accountTables[] = {"customers", "employees_reps", "employees_admins"};
-		String resultString = "Invalid login. Please check credentials or register for an account!";
-
-		for (String accType: accountTables) {
-			ResultSet result = conn.prepareStatement(String.format(select, accType, username, password)).executeQuery();
-
-			if (result.isBeforeFirst()) {
-				resultString = "Successfully logged in!";
-				session.setAttribute("username", username);
-				break;
-			}
-
+		String select = "SELECT * FROM users WHERE username = '%s' AND password = '%s'"; // %s -> String.format()
+		ResultSet result = conn.prepareStatement(String.format(select, username, password)).executeQuery();
+		if (result.isBeforeFirst()) {
+			out.println("Successfully logged in!");
+			session.setAttribute("username", username);
 		}
-		out.println(resultString);
+		else {
+			out.println("Invalid login. Please check credentials or register for an account!");
+		}
 		conn.close();
 		%>
 			

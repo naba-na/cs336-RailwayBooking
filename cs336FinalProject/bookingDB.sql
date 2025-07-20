@@ -2,29 +2,20 @@ DROP DATABASE IF EXISTS railwaybooking;
 CREATE DATABASE railwaybooking;
 USE railwaybooking;
 
-CREATE TABLE customers(
+CREATE TABLE users(
 user_id int AUTO_INCREMENT NOT NULL primary key,
 username varchar(50) NOT NULL,
 password varchar(50) NOT NULL,
-firstname varchar(100),
-lastname varchar(100),
+firstname varchar(100) NOT NULL,
+lastname varchar(100) NOT NULL,
 email varchar(100)
 );
 
-CREATE TABLE employees_reps(
-ssn varchar(11) primary key,
-username varchar(50),
-password varchar(50),
-firstname varchar(50),
-lastname varchar(50)
-);
-
-CREATE TABLE employees_admins(
-ssn varchar(11) primary key,
-username varchar(50),
-password varchar(50),
-firstname varchar(50),
-lastname varchar(50)
+CREATE TABLE employees(
+user_id int primary key,
+ssn varchar(11) NOT NULL,
+acc_type ENUM('rep', 'admin') NOT NULL,
+foreign key (user_id) references users(user_id)
 );
 
 CREATE TABLE stations(
@@ -79,13 +70,13 @@ dest_stop_id int,
 origin_stop_id int,
 eligible_for_discount bool,
 total_fare float,
-foreign key (user_id) references customers(user_id),
+foreign key (user_id) references users(user_id),
 foreign key (line_name) references transitlines(line_name),
 foreign key (dest_stop_id) references stops(stop_id),
 foreign key (origin_stop_id) references stops(stop_id)
 );
 
-INSERT INTO customers(username, password, firstname, lastname, email)
+INSERT INTO users(username, password, firstname, lastname, email)
 VALUES ("testuser", "testpass", "John", "Doe", "JohnDoe@example.com");
 
 
