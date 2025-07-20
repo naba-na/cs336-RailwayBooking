@@ -15,5 +15,15 @@
     <form action="logout.jsp" method="post">
         <input type="submit" value="Logout">
     </form>
+    
+    <br>
+    
+    <h2>Search schedules</h2>
+    <form action="searchSchedules.jsp" method="post">
+    	Origin: <input type="text" name="origin" required>
+    	Destination: <input type="text" name="destination" required>
+    	Date: <input type="date" name="date" required>
+    	<input type="submit" value="Search">
+    </form>
 </body>
 </html>
