@@ -64,8 +64,6 @@ line_name varchar(100),
 foreign key (line_name) references transitlines(line_name)
 );
 
-DROP TABLE IF EXISTS TransitLines_Contains_Stops;
-
 CREATE TABLE TransitLines_Contains_Stops(
 line_name varchar(100) not null,
 stop_id int,
@@ -73,6 +71,7 @@ primary key(line_name, stop_id),
 foreign key (line_name) references transitlines(line_name),
 foreign key (stop_id) references stops(stop_id)
 );
+
 CREATE TABLE reservations(
 res_id int AUTO_INCREMENT not null primary key,
 creationDate date,
@@ -93,14 +92,16 @@ foreign key (dest_stop_id) references stops(stop_id),
 foreign key (origin_stop_id) references stops(stop_id)
 );
 
-CREATE TABLE questions(
-question_id int AUTO_INCREMENT NOT NULL primary key,
-question_text TEXT,
-response_text TEXT,
-user_id int,
-rep_ssn varchar(11),
-foreign key (user_id) references customers(user_id),
-foreign key (user_id) references employees(user_id)
+CREATE TABLE customer_questions( 
+question_id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT, 
+question_text TEXT NOT NULL,
+answer_text TEXT, 
+status ENUM('pending', 'answered') DEFAULT 'pending', 
+ rep_username VARCHAR(50), 
+created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+ answered_date TIMESTAMP NULL,
+FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 INSERT INTO users(user_id, username, password, firstname, lastname, email) VALUES
