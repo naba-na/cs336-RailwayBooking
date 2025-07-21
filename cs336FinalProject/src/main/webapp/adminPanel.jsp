@@ -36,12 +36,11 @@
     Connection conn = db.getConnection();
     
     String statsQuery = "SELECT " +
-                       "(SELECT COUNT(*) FROM users u JOIN customers c ON u.user_id = c.user_id) as total_customers, " +
-                       "(SELECT COUNT(*) FROM users u JOIN employees e ON u.user_id = e.user_id WHERE e.acc_type = 'rep') as total_reps, " +
-                       "(SELECT COUNT(*) FROM reservations WHERE isActive = true) as active_reservations, " +
-                       "(SELECT COUNT(*) FROM trains) as total_trains, " +
-                       "(SELECT SUM(total_fare) FROM reservations WHERE isActive = true) as total_revenue";
-    
+                   "(SELECT COUNT(*) FROM users u JOIN customers c ON u.user_id = c.user_id) as total_customers, " +
+                   "(SELECT COUNT(*) FROM users u JOIN employees e ON u.user_id = e.user_id WHERE e.acc_type = 'rep') as total_reps, " +
+                   "(SELECT COUNT(*) FROM reservations WHERE status = 'active') as active_reservations, " +
+                   "(SELECT COUNT(*) FROM trains) as total_trains, " +
+                   "(SELECT SUM(total_fare) FROM reservations WHERE status = 'active') as total_revenue";
     PreparedStatement psStats = conn.prepareStatement(statsQuery);
     ResultSet statsResult = psStats.executeQuery();
     statsResult.next();

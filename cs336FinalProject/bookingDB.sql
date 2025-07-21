@@ -30,7 +30,7 @@ CREATE TABLE customers(
 
 CREATE TABLE stations(
 station_id int AUTO_INCREMENT not null primary key,
-name varchar(100),
+station_name varchar(100),
 city varchar(100),
 state varchar(50)
 );
@@ -74,20 +74,17 @@ foreign key (stop_id) references stops(stop_id)
 
 CREATE TABLE reservations(
 res_id int AUTO_INCREMENT not null primary key,
-creationDate date,
+booking_date timestamp DEFAULT CURRENT_TIMESTAMP,
 user_id int,
-res_date date,
-res_time time,
-dest_arrival_time time,
-line_name varchar(100),
-origin_station_name varchar(50),
+train_id int,
 origin_stop_id int,
-dest_station_name varchar(50),
 dest_stop_id int,
-total_fare float,
-isActive bool,
+res_date date,
+passenger_type ENUM('adult', 'child', 'senior', 'disabled') DEFAULT 'adult',
+total_fare decimal(10,2),
+status ENUM('active', 'cancelled') DEFAULT 'active',
 foreign key (user_id) references users(user_id),
-foreign key (line_name) references transitlines(line_name),
+foreign key (train_id) references trains(train_id),
 foreign key (dest_stop_id) references stops(stop_id),
 foreign key (origin_stop_id) references stops(stop_id)
 );
@@ -135,7 +132,7 @@ INSERT INTO customers (user_id, phone, address, city, state, zip) VALUES
 (12, '555-2020', '200 Oak Ave', 'Madison', 'WI', '53703'),
 (13, '555-3030', '300 Pine Rd', 'Austin', 'TX', '78701');
 
-INSERT INTO stations (name, city, state) VALUES
+INSERT INTO stations (station_name, city, state) VALUES
 ('Central Station', 'New York', 'NY'),
 ('Union Station', 'Chicago', 'IL'),
 ('Grand Station', 'Los Angeles', 'CA'),
