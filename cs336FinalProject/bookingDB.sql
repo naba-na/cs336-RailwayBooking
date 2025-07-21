@@ -145,7 +145,9 @@ INSERT INTO stops (station_id, nextstop_id, arrival_time, departure_time) VALUES
 (2, NULL, '10:30:00', '10:45:00'),
 (3, NULL, '13:00:00', '13:15:00'),
 (4, NULL, '16:30:00', '16:45:00'),
-(5, NULL, '19:00:00', '19:15:00');
+(5, NULL, '19:00:00', '19:15:00'),
+(2, NULL, '15:00:00', '15:15:00'),
+(3, 6, '14:30:00', '14:45:00');
 
 UPDATE stops SET nextstop_id = 2 WHERE stop_id = 1;
 UPDATE stops SET nextstop_id = 3 WHERE stop_id = 2;
@@ -160,6 +162,13 @@ INSERT INTO trains (train_id, line_name) VALUES
 (1001, 'NY-CA Express'),
 (1002, 'Midwest Connector');
 
-
-
-
+INSERT INTO TransitLines_Contains_Stops (line_name, stop_id) VALUES
+('NY-CA Express', 1),
+('NY-CA Express', 2),
+('NY-CA Express', 3),
+('NY-CA Express', 4),
+('NY-CA Express', 5),
+('Midwest Connector', 2),
+('Midwest Connector', 3),
+('Midwest Connector', 6),
+('Midwest Connector', 7);

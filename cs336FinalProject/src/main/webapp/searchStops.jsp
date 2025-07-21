@@ -36,7 +36,7 @@ if (resultLine.next()) {
     return;
 }
 
-String stops_in_transitline = "SELECT t.line_name, t.fare, t.fareChild, t.fareSenior, t.fareDisabled, s.stop_id, st.station_name, s.arrival_time, s.departure_time " +
+String stops_in_transitline = "SELECT t.line_name, t.fare, t.fareChild, t.fareSenior, t.fareDisabled, s.stop_id, st.name, s.arrival_time, s.departure_time " +
                              "FROM transitlines t " +
                              "JOIN TransitLines_Contains_Stops ts ON t.line_name = ts.line_name " +
                              "JOIN stops s ON ts.stop_id = s.stop_id " +
@@ -80,7 +80,7 @@ while(results.next()){
     out.print("<td>$" + String.format("%.2f", results.getDouble("fareSenior")) + "</td>");
     out.print("<td>$" + String.format("%.2f", results.getDouble("fareDisabled")) + "</td>");
     out.print("<td>" + results.getInt("stop_id") + "</td>");
-    out.print("<td>" + results.getString("station_name") + "</td>");
+    out.print("<td>" + results.getString("name") + "</td>");
     out.print("<td>" + results.getTime("arrival_time") + "</td>");
     out.print("<td>" + results.getTime("departure_time") + "</td>");
     out.print("</tr>");

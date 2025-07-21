@@ -26,7 +26,7 @@ ResultSet resultUsers = psUsers.executeQuery();
 resultUsers.next();
 String user_id = resultUsers.getString(1);
 
-String findRes = "SELECT * FROM reservations WHERE resID = ? LIMIT 1";
+String findRes = "SELECT * FROM reservations WHERE res_id = ? LIMIT 1";
 PreparedStatement psRes = conn.prepareStatement(findRes);
 psRes.setString(1, resID);
 ResultSet resultRes = psRes.executeQuery();
@@ -38,14 +38,14 @@ if(!resultRes.isBeforeFirst()){
 	String checkUserID = resultRes.getString(3);
 	String reservationID = resultRes.getString(1);
 	
-	if(user_id != checkUserID){
+	if(!user_id.equals(checkUserID)){
 		out.print("You do not have permission to cancel this reservation, please check if entered ID was correct.");
 	}else{
 		String cancelRes = "UPDATE reservations SET isActive = false WHERE res_id = ?";
 		PreparedStatement psCRes = conn.prepareStatement(cancelRes);
 		psCRes.setString(1, reservationID);
 		int resultUpdate = psCRes.executeUpdate();
-		if(resultUpdate > 1){
+		if(resultUpdate == 1){
 			out.print("Reservation successfully canceled.");
 		}else{
 			out.print("Error canceling reservation, please try again.");
@@ -56,6 +56,6 @@ if(!resultRes.isBeforeFirst()){
 conn.close();
 %>
 
-<a href="home.jsp">back to home</a>
+<a href="viewReservations.jsp">back to reservations</a>
 </body>
 </html>

@@ -63,14 +63,17 @@
     	Date: <input type="date" name="date" required>
     	<label for="discount">Select one that applies:</label> 
     		<select name="discount" id="discount" required>
-    			<option value="tl.fare">None</option>
-    			<option value="tl.fareChild">Child</option>
-    			<option value="tl.fareSenior">Senior</option>
-    			<option value="tl.fareDisabled">Disabled</option>
+    			<option value="fare">None</option>
+    			<option value="fareChild">Child</option>
+    			<option value="fareSenior">Senior</option>
+    			<option value="fareDisabled">Disabled</option>
     		</select>
     	<input type="radio" name="isRound" value="N" required/>One-way
     	<input type="radio" name="isRound" value="Y" required/>Round-Trip
     	<input type="submit" value="Book Reservation">
     </form>
+    
+    <a href="viewReservations.jsp">View Reservations</a>
+    
 </body>
 </html>

@@ -100,7 +100,7 @@ if(!resultARes.isBeforeFirst()){
 
 <%
 if(!resultPRes.isBeforeFirst()){
-	out.print("No active reservations!");
+	out.print("No past reservations!");
 }else{
 	while(resultPRes.next()){
 		out.print("<tr>");
