@@ -118,12 +118,6 @@
             <a href="customerReports.jsp" class="btn">Customer Reports</a>
         </div>
         
-        <div class="dashboard-card">
-            <h3>🔧 System Tools</h3>
-            <p>Advanced tools for customer service representatives.</p>
-            <a href="systemTools.jsp" class="btn">System Tools</a>
-        </div>
-        
     </div>
 </div>
 

@@ -104,11 +104,6 @@
             <a href="transitLineAnalytics.jsp" class="btn">Top Transit Lines</a>
         </div>
         
-        <div class="dashboard-card">
-            <h3>⚙️ System Management</h3>
-            <p>Advanced system administration tools.</p>
-            <a href="systemReports.jsp" class="btn">System Reports</a>
-        </div>
         
     </div>
 </div>
