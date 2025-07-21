@@ -98,8 +98,8 @@ question_text TEXT,
 response_text TEXT,
 user_id int,
 rep_ssn varchar(11),
-foreign key (user_id) references users(user_id),
-foreign key (rep_ssn) references employees_reps(ssn)
+foreign key (user_id) references customers(user_id),
+foreign key (user_id) references employees(user_id)
 );
 
 INSERT INTO users(user_id, username, password, firstname, lastname, email) VALUES
