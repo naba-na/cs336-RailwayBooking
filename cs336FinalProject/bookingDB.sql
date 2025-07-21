@@ -161,6 +161,16 @@ INSERT INTO trains (train_id, line_name) VALUES
 (1001, 'NY-CA Express'),
 (1002, 'Midwest Connector');
 
+INSERT INTO TransitLines_Contains_Stops (line_name, stop_id) VALUES
+('NY-CA Express', 1),
+('NY-CA Express', 2),
+('NY-CA Express', 3),
+('NY-CA Express', 4),
+('NY-CA Express', 5),
+
+('Midwest Connector', 2),
+('Midwest Connector', 3);
+
 
 
 
