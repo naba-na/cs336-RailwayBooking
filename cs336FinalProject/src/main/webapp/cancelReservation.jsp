@@ -52,6 +52,8 @@ if(!resultRes.isBeforeFirst()){
 		}
 	}
 }
+
+conn.close();
 %>
 
 <a href="home.jsp">back to home</a>

@@ -112,6 +112,8 @@ if(!resultPRes.isBeforeFirst()){
 		out.print("</tr>");
 	}
 }
+
+conn.close();
 %>
 
 
