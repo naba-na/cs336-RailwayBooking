@@ -96,11 +96,13 @@ psRes.setString(9, destination_station_name);
 psRes.setString(10, dest_stop_id);
 psRes.setFloat(11, fareTotal);
 
+int result;
+
 //repeat route finding for roundtrip
 if(isRound == "Y"){
 	//find suitable line
 	//string one original destination, s2 original origin
-	String findReturnLine = "SELECT tlcs1.line_name, s1.stop_id FROM TransitLines_Contains_Stops tlcs1 JOIN stops s1 ON tlcs1.stop_id = s1.stop_id "
+	String findReturnLine = "SELECT tlcs1.line_name, s1.stop_id, s1.departure_time FROM TransitLines_Contains_Stops tlcs1 JOIN stops s1 ON tlcs1.stop_id = s1.stop_id "
 							+ "JOIN TransitLines_Contains_Stops tlcs2 ON tlcs1.line_name = tlcs2.line_name JOIN stops s2 ON tlcs2.stop_id = s2.stop_id "
 							+ "WHERE s1.station_id = ? AND s2.station_id = ? AND s1.departure_time > ? AN s1.departure_time < s2.arrival_time GROUP BY tlcs1.line_name LIMIT 1";
 	PreparedStatement psReturnLine = conn.prepareStatement(findReturnLine);
@@ -108,19 +110,61 @@ if(isRound == "Y"){
 	psReturnLine.setString(2, origin_station_id);
 	psReturnLine.setString(3, dest_arrival_time);
 	ResultSet resultReturnLine = psReturnLine.executeQuery();
+	
 	if(!resultReturnLine.isBeforeFirst()){
 		out.println("Error finding route for return trip, only creating one-way reservation.");
+		result = psRes.executeUpdate();
 	}else{
 		resultReturnLine.next();
 		String return_line_name = resultReturnLine.getString(1);
+		String return_origin_stop_id = resultReturnLine.getString(2);
+		String return_origin_departure_time = resultReturnLine.getString(3);
 		
 		
+		String findReturnRoute = "WITH RECURSIVE route AS (SELECT s.stop_id, s.station_id, s.nextstop_id, s.arrival_time, s.departure_time, tlcs.line_name, 1 AS stops_visited, 0 AS depth "
+						+ "FROM stops s JOIN TransitLines_Contains_Stops tlcs ON s.stop_id = tlcs.stop_id "
+						+ "WHERE s.stop_id = ? AND tcls.line_name = ? UNION ALL SELECT s2.stop_id, s2.station_id, s2.nextstop_id, s2.arrival_time, s2.departure_time, r.line_name, r.stops_visited + 1, r.depth + 1 "
+						+ "FROM route r JOIN stops s2 ON s2.stop_id = r.nextstop_id JOIN TransitLines_Contains_Stops tlcs2 ON s2.stop_id = tlcs2.stop_id AND tlcs2.line_name = r.line_name WHERE r.station_id != ?) "
+						+ "SELECT r.*, ?, ts.total AS total_stops_on_route, (? / ts.total) * r.stops_visited AS calculated_fare FROM route r JOIN transitlines tl ON r.line_name = tl.line_name "
+						+ "JOIN (SELECT line_name, COUNT(*) AS total FROM TransitLines_Contains_Stops GROUP BY line_name) ts ON r.line_name = ts.line_name "
+						+ "WHERE r.station_id = ? ORDER BY r.depth LIMIT 1";
+		PreparedStatement psRRoute = conn.prepareStatement(findReturnRoute);
+		psRoute.setString(1, return_origin_stop_id);
+		psRoute.setString(2, return_line_name);
+		psRoute.setString(2, origin_station_id);
+		psRoute.setString(3, discount);
+		psRoute.setString(4, discount);
+		psRoute.setString(5, origin_station_id);
+		ResultSet returnRoute = psRRoute.executeQuery();
+		returnRoute.next();
+		float returnFareTotal = returnRoute.getFloat(returnRoute.findColumn("calculated_fare"));
+		String return_dest_stop_id = returnRoute.getString(returnRoute.findColumn("stop_id"));
+		String return_dest_arrival_time = returnRoute.getString(returnRoute.findColumn("arrival_time"));
+		
+		String insertReturnRes = "INSERT INTO reservations(creationDate, user_id, res_date, res_time, dest_arrival_time, line_name, origin_station_name, origin_stop_id, destination_station_name, dest_stop_id, total_fare, isActive) "
+				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
+		PreparedStatement psRRes = conn.prepareStatement(insertReturnRes);
+		psRRes.setString(1, currentDate);
+		psRRes.setString(2, user_id);
+		psRRes.setString(3, date);
+		psRRes.setString(4, return_origin_departure_time);
+		psRRes.setString(5, return_dest_arrival_time);
+		psRRes.setString(6, return_line_name);
+		psRRes.setString(7, destination_station_name);
+		psRRes.setString(8, return_origin_stop_id);
+		psRRes.setString(9, origin_station_name);
+		psRRes.setString(10, return_dest_stop_id);
+		psRRes.setFloat(11, returnFareTotal);
+		
+		result = psRes.executeUpdate();
+		int returnResult = psRRes.executeUpdate();
+		result += returnResult;
 	}
 	
+}else{
+	 result = psRes.executeUpdate();
 }
 
-
-int result = psRes.executeUpdate();
 if(result < 1){
 	out.println("Error occurred creating reservation, please try again.");
 }else{
