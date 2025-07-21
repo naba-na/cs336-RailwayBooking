@@ -1,0 +1,221 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.cs336final.*"%>
+<%@ page import="javax.servlet.http.*,javax.servlet.*"%>
+<%@ page session="true" %>
+<%@ page import="java.io.*,java.util.*,java.sql.*"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Revenue Reports</title>
+<style>
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+    .summary-card { background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007cba; }
+    .revenue-highlight { font-size: 24px; font-weight: bold; color: #007cba; }
+    .section { margin: 30px 0; }
+</style>
+</head>
+<body>
+<%
+    String username = (String) session.getAttribute("username");
+    String acc_type = (String) session.getAttribute("acc_type");
+    
+    if (username == null || !"admin".equals(acc_type)) {
+        response.sendRedirect("home.jsp");
+        return;
+    }
+    
+    bookingDB db = new bookingDB();
+    Connection conn = db.getConnection();
+%>
+
+<div class="container">
+    <h1>💰 Revenue Analysis</h1>
+    <p><a href="adminPanel.jsp">← Back to Admin Panel</a></p>
+    
+    <%
+    String overallQuery = "SELECT " +
+                         "SUM(CASE WHEN status = 'active' THEN total_fare ELSE 0 END) as total_active_revenue, " +
+                         "SUM(CASE WHEN status = 'cancelled' THEN total_fare ELSE 0 END) as total_cancelled_revenue, " +
+                         "COUNT(CASE WHEN status = 'active' THEN 1 END) as active_bookings, " +
+                         "COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings, " +
+                         "AVG(CASE WHEN status = 'active' THEN total_fare END) as avg_fare " +
+                         "FROM reservations";
+    
+    PreparedStatement psOverall = conn.prepareStatement(overallQuery);
+    ResultSet overallResult = psOverall.executeQuery();
+    overallResult.next();
+    
+    double totalActiveRevenue = overallResult.getDouble("total_active_revenue");
+    double totalCancelledRevenue = overallResult.getDouble("total_cancelled_revenue");
+    int activeBookings = overallResult.getInt("active_bookings");
+    int cancelledBookings = overallResult.getInt("cancelled_bookings");
+    double avgFare = overallResult.getDouble("avg_fare");
+    %>
+    
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3>💸 Total Revenue</h3>
+            <div class="revenue-highlight">$<%= String.format("%.2f", totalActiveRevenue) %></div>
+            <p>From <%= activeBookings %> active reservations</p>
+        </div>
+        
+        <div class="summary-card">
+            <h3>📊 Revenue Metrics</h3>
+            <p><strong>Average Fare:</strong> $<%= String.format("%.2f", avgFare) %></p>
+            <p><strong>Cancelled Revenue:</strong> $<%= String.format("%.2f", totalCancelledRevenue) %></p>
+            <p><strong>Total Bookings:</strong> <%= activeBookings + cancelledBookings %></p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🛤️ Revenue by Transit Line</h2>
+        <table>
+        <tr>
+            <th>Transit Line</th>
+            <th>Active Reservations</th>
+            <th>Total Revenue</th>
+            <th>Average Fare</th>
+            <th>Cancelled Reservations</th>
+            <th>Lost Revenue</th>
+            <th>Revenue Share</th>
+        </tr>
+        
+        <%
+        String lineRevenueQuery = "SELECT t.line_name, " +
+                                 "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_count, " +
+                                 "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as line_revenue, " +
+                                 "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare, " +
+                                 "COUNT(CASE WHEN r.status = 'cancelled' THEN 1 END) as cancelled_count, " +
+                                 "SUM(CASE WHEN r.status = 'cancelled' THEN r.total_fare ELSE 0 END) as lost_revenue " +
+                                 "FROM trains t " +
+                                 "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                                 "GROUP BY t.line_name " +
+                                 "ORDER BY line_revenue DESC";
+        
+        PreparedStatement psLineRevenue = conn.prepareStatement(lineRevenueQuery);
+        ResultSet lineRevenueResult = psLineRevenue.executeQuery();
+        
+        while(lineRevenueResult.next()) {
+            double lineRevenue = lineRevenueResult.getDouble("line_revenue");
+            double lineAvgFare = lineRevenueResult.getDouble("avg_fare");
+            double lostRevenue = lineRevenueResult.getDouble("lost_revenue");
+            double revenueShare = totalActiveRevenue > 0 ? (lineRevenue / totalActiveRevenue) * 100 : 0;
+            
+            out.print("<tr>");
+            out.print("<td>" + lineRevenueResult.getString("line_name") + "</td>");
+            out.print("<td>" + lineRevenueResult.getInt("active_count") + "</td>");
+            out.print("<td><strong>$" + String.format("%.2f", lineRevenue) + "</strong></td>");
+            out.print("<td>$" + String.format("%.2f", lineAvgFare) + "</td>");
+            out.print("<td>" + lineRevenueResult.getInt("cancelled_count") + "</td>");
+            out.print("<td>$" + String.format("%.2f", lostRevenue) + "</td>");
+            out.print("<td>" + String.format("%.1f%%", revenueShare) + "</td>");
+            out.print("</tr>");
+        }
+        %>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>👤 Top 20 Customers by Revenue</h2>
+        <table>
+        <tr>
+            <th>Rank</th>
+            <th>Customer Name</th>
+            <th>Username</th>
+            <th>Total Reservations</th>
+            <th>Active Reservations</th>
+            <th>Total Revenue</th>
+            <th>Average Fare</th>
+            <th>Last Booking</th>
+        </tr>
+        
+        <%
+        String customerRevenueQuery = "SELECT u.firstname, u.lastname, u.username, " +
+                                     "COUNT(r.res_id) as total_reservations, " +
+                                     "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
+                                     "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as customer_revenue, " +
+                                     "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_customer_fare, " +
+                                     "MAX(r.booking_date) as last_booking " +
+                                     "FROM users u " +
+                                     "JOIN reservations r ON u.user_id = r.user_id " +
+                                     "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
+                                     "HAVING customer_revenue > 0 " +
+                                     "ORDER BY customer_revenue DESC " +
+                                     "LIMIT 20";
+        
+        PreparedStatement psCustomerRevenue = conn.prepareStatement(customerRevenueQuery);
+        ResultSet customerRevenueResult = psCustomerRevenue.executeQuery();
+        
+        int rank = 1;
+        while(customerRevenueResult.next()) {
+            String fullName = customerRevenueResult.getString("firstname") + " " + customerRevenueResult.getString("lastname");
+            double customerRevenue = customerRevenueResult.getDouble("customer_revenue");
+            double avgCustomerFare = customerRevenueResult.getDouble("avg_customer_fare");
+            
+            out.print("<tr>");
+            out.print("<td>" + rank + "</td>");
+            out.print("<td>" + fullName + "</td>");
+            out.print("<td>" + customerRevenueResult.getString("username") + "</td>");
+            out.print("<td>" + customerRevenueResult.getInt("total_reservations") + "</td>");
+            out.print("<td>" + customerRevenueResult.getInt("active_reservations") + "</td>");
+            out.print("<td><strong>$" + String.format("%.2f", customerRevenue) + "</strong></td>");
+            out.print("<td>$" + String.format("%.2f", avgCustomerFare) + "</td>");
+            out.print("<td>" + customerRevenueResult.getTimestamp("last_booking") + "</td>");
+            out.print("</tr>");
+            rank++;
+        }
+        %>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>🎫 Revenue by Passenger Type</h2>
+        <table>
+        <tr>
+            <th>Passenger Type</th>
+            <th>Reservations</th>
+            <th>Total Revenue</th>
+            <th>Average Fare</th>
+            <th>Revenue Share</th>
+        </tr>
+        
+        <%
+        String passengerTypeQuery = "SELECT passenger_type, " +
+                                   "COUNT(CASE WHEN status = 'active' THEN 1 END) as type_count, " +
+                                   "SUM(CASE WHEN status = 'active' THEN total_fare ELSE 0 END) as type_revenue, " +
+                                   "AVG(CASE WHEN status = 'active' THEN total_fare END) as avg_type_fare " +
+                                   "FROM reservations " +
+                                   "GROUP BY passenger_type " +
+                                   "ORDER BY type_revenue DESC";
+        
+        PreparedStatement psPassengerType = conn.prepareStatement(passengerTypeQuery);
+        ResultSet passengerTypeResult = psPassengerType.executeQuery();
+        
+        while(passengerTypeResult.next()) {
+            double typeRevenue = passengerTypeResult.getDouble("type_revenue");
+            double avgTypeFare = passengerTypeResult.getDouble("avg_type_fare");
+            double typeRevenueShare = totalActiveRevenue > 0 ? (typeRevenue / totalActiveRevenue) * 100 : 0;
+            String passengerType = passengerTypeResult.getString("passenger_type");
+            
+            out.print("<tr>");
+            out.print("<td>" + passengerType.substring(0,1).toUpperCase() + passengerType.substring(1) + "</td>");
+            out.print("<td>" + passengerTypeResult.getInt("type_count") + "</td>");
+            out.print("<td>$" + String.format("%.2f", typeRevenue) + "</td>");
+            out.print("<td>$" + String.format("%.2f", avgTypeFare) + "</td>");
+            out.print("<td>" + String.format("%.1f%%", typeRevenueShare) + "</td>");
+            out.print("</tr>");
+        }
+        
+        conn.close();
+        %>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

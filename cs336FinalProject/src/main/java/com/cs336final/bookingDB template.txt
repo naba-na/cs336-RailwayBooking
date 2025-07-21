@@ -17,7 +17,7 @@ public class bookingDB{
 		Connection connection = null;
 
 		String username = "root";
-		String password = "passwordhere";
+		String password = "newpassword123";
 		
 		
 		//just took this directly from the sample project, can tweak later
