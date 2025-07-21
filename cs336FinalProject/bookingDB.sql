@@ -64,14 +64,15 @@ line_name varchar(100),
 foreign key (line_name) references transitlines(line_name)
 );
 
-CREATE TABLE TransitLines_Contains_Stops(
-line_name varchar(100) not null,
-stop_id int,
-primary key(line_name, stop_id),
-foreign key (line_name) references transitlines(line_name),
-foreign key (stop_id) references stops(stop_id)
-);
+DROP TABLE IF EXISTS TransitLines_Contains_Stops;
 
+CREATE TABLE TransitLines_Contains_Stops(
+  line_name VARCHAR(100) NOT NULL,
+  stop_id INT NOT NULL,
+  PRIMARY KEY (line_name, stop_id),
+  FOREIGN KEY (line_name) REFERENCES transitlines(line_name),
+  FOREIGN KEY (stop_id) REFERENCES stops(stop_id)
+);
 CREATE TABLE reservations(
 res_id int AUTO_INCREMENT not null primary key,
 creationDate date,
