@@ -44,15 +44,15 @@
     <%
     String bestCustomerQuery = "SELECT u.firstname, u.lastname, u.username, u.email, " +
                               "COUNT(r.res_id) as total_bookings, " +
-                              "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_bookings, " +
-                              "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
-                              "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare, " +
-                              "MIN(r.booking_date) as first_booking, " +
-                              "MAX(r.booking_date) as last_booking, " +
+                              "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_bookings, " +
+                              "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                              "AVG(CASE WHEN r.isActive = true THEN r.total_fare END) as avg_fare, " +
+                              "MIN(r.creationDate) as first_booking, " +
+                              "MAX(r.creationDate) as last_booking, " +
                               "COUNT(DISTINCT t.line_name) as lines_used " +
                               "FROM users u " +
                               "JOIN reservations r ON u.user_id = r.user_id " +
-                              "JOIN trains t ON r.train_id = t.train_id " +
+                              "JOIN trains t ON r.line_name = t.line_name " +
                               "GROUP BY u.user_id, u.firstname, u.lastname, u.username, u.email " +
                               "HAVING total_revenue > 0 " +
                               "ORDER BY total_revenue DESC, total_bookings DESC " +
@@ -80,11 +80,11 @@
     <%
     String topThreeQuery = "SELECT u.firstname, u.lastname, u.username, " +
                           "COUNT(r.res_id) as total_bookings, " +
-                          "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                          "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
                           "COUNT(DISTINCT t.line_name) as lines_used " +
                           "FROM users u " +
                           "JOIN reservations r ON u.user_id = r.user_id " +
-                          "JOIN trains t ON r.train_id = t.train_id " +
+                          "JOIN trains t ON r.line_name = t.line_name " +
                           "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
                           "HAVING total_revenue > 0 " +
                           "ORDER BY total_revenue DESC, total_bookings DESC " +
@@ -122,7 +122,7 @@
         <%
         String frequentQuery = "SELECT u.firstname, u.lastname, u.username, " +
                               "COUNT(r.res_id) as booking_count, " +
-                              "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_spent " +
+                              "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_spent " +
                               "FROM users u " +
                               "JOIN reservations r ON u.user_id = r.user_id " +
                               "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
@@ -143,12 +143,12 @@
         <% } %>
         
         <%
-        String highestBookingQuery = "SELECT u.firstname, u.lastname, u.username, r.total_fare, r.booking_date, " +
+        String highestBookingQuery = "SELECT u.firstname, u.lastname, u.username, r.total_fare, r.creationDate, " +
                                     "t.line_name " +
                                     "FROM users u " +
                                     "JOIN reservations r ON u.user_id = r.user_id " +
-                                    "JOIN trains t ON r.train_id = t.train_id " +
-                                    "WHERE r.status = 'active' " +
+                                    "JOIN trains t ON r.line_name = t.line_name " +
+                                    "WHERE r.isActive = true " +
                                     "ORDER BY r.total_fare DESC " +
                                     "LIMIT 1";
         
@@ -161,15 +161,15 @@
             <h3>💎 Highest Single Booking</h3>
             <p><strong><%= highestResult.getString("firstname") %> <%= highestResult.getString("lastname") %></strong></p>
             <p>$<%= String.format("%.2f", highestResult.getDouble("total_fare")) %></p>
-            <p><%= highestResult.getString("line_name") %> | <%= highestResult.getTimestamp("booking_date") %></p>
+            <p><%= highestResult.getString("line_name") %> | <%= highestResult.getTimestamp("creationDate") %></p>
         </div>
         <% } %>
         
         <%
         String loyalQuery = "SELECT u.firstname, u.lastname, u.username, " +
-                           "MIN(r.booking_date) as first_booking, " +
+                           "MIN(r.creationDate) as first_booking, " +
                            "COUNT(r.res_id) as total_bookings, " +
-                           "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_spent " +
+                           "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_spent " +
                            "FROM users u " +
                            "JOIN reservations r ON u.user_id = r.user_id " +
                            "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
@@ -193,10 +193,10 @@
         String diverseQuery = "SELECT u.firstname, u.lastname, u.username, " +
                              "COUNT(DISTINCT t.line_name) as lines_count, " +
                              "COUNT(r.res_id) as total_bookings, " +
-                             "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_spent " +
+                             "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_spent " +
                              "FROM users u " +
                              "JOIN reservations r ON u.user_id = r.user_id " +
-                             "JOIN trains t ON r.train_id = t.train_id " +
+                             "JOIN trains t ON r.line_name = t.line_name " +
                              "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
                              "ORDER BY lines_count DESC, total_bookings DESC " +
                              "LIMIT 1";
@@ -233,15 +233,15 @@
     <%
     String detailedQuery = "SELECT u.firstname, u.lastname, u.username, " +
                           "COUNT(r.res_id) as total_bookings, " +
-                          "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_bookings, " +
-                          "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
-                          "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare, " +
+                          "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_bookings, " +
+                          "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                          "AVG(CASE WHEN r.isActive = true THEN r.total_fare END) as avg_fare, " +
                           "COUNT(DISTINCT t.line_name) as lines_used, " +
-                          "MIN(r.booking_date) as first_booking, " +
-                          "MAX(r.booking_date) as last_booking " +
+                          "MIN(r.creationDate) as first_booking, " +
+                          "MAX(r.creationDate) as last_booking " +
                           "FROM users u " +
                           "JOIN reservations r ON u.user_id = r.user_id " +
-                          "JOIN trains t ON r.train_id = t.train_id " +
+                          "JOIN trains t ON r.line_name = t.line_name " +
                           "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
                           "HAVING total_revenue > 0 " +
                           "ORDER BY total_revenue DESC, total_bookings DESC " +

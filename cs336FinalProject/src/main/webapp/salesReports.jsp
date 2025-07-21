@@ -79,13 +79,13 @@
     
     String summaryQuery = "SELECT " +
                          "COUNT(r.res_id) as total_bookings, " +
-                         "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_bookings, " +
-                         "COUNT(CASE WHEN r.status = 'cancelled' THEN 1 END) as cancelled_bookings, " +
-                         "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
-                         "SUM(CASE WHEN r.status = 'cancelled' THEN r.total_fare ELSE 0 END) as cancelled_revenue, " +
+                         "COUNT(CASE WHEN isActive = true THEN 1 END) as active_bookings, " +
+                         "COUNT(CASE WHEN isActive = false THEN 1 END) as cancelled_bookings, " +
+                         "SUM(CASE WHEN isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                         "SUM(CASE WHEN isActive = false THEN r.total_fare ELSE 0 END) as cancelled_revenue, " +
                          "COUNT(DISTINCT r.user_id) as unique_customers " +
                          "FROM reservations r " +
-                         "WHERE r.booking_date >= ? AND r.booking_date < DATE_ADD(?, INTERVAL 1 MONTH)";
+                         "WHERE r.creationDate >= ? AND r.creationDate < DATE_ADD(?, INTERVAL 1 MONTH)";
     
     PreparedStatement psSummary = conn.prepareStatement(summaryQuery);
     psSummary.setString(1, startDate);
@@ -136,13 +136,13 @@
     <%
     String lineQuery = "SELECT t.line_name, " +
                       "COUNT(r.res_id) as total_bookings, " +
-                      "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_bookings, " +
-                      "COUNT(CASE WHEN r.status = 'cancelled' THEN 1 END) as cancelled_bookings, " +
-                      "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
-                      "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare " +
+                      "COUNT(CASE WHEN isActive = true THEN 1 END) as active_bookings, " +
+                      "COUNT(CASE WHEN isActive = false THEN 1 END) as cancelled_bookings, " +
+                      "SUM(CASE WHEN isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                      "AVG(CASE WHEN isActive = true THEN r.total_fare END) as avg_fare " +
                       "FROM reservations r " +
-                      "JOIN trains t ON r.train_id = t.train_id " +
-                      "WHERE r.booking_date >= ? AND r.booking_date < DATE_ADD(?, INTERVAL 1 MONTH) " +
+                      "JOIN trains t ON r.line_name = t.line_name " +
+                      "WHERE r.creationDate >= ? AND r.creationDate < DATE_ADD(?, INTERVAL 1 MONTH) " +
                       "GROUP BY t.line_name " +
                       "ORDER BY total_revenue DESC";
     

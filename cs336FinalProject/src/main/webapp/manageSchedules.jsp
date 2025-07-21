@@ -177,13 +177,13 @@
         </tr>
         
         <%
-        String getStops = "SELECT s.stop_id, st.station_name, st.city, st.state, s.arrival_time, s.departure_time, " +
-                         "GROUP_CONCAT(DISTINCT tcs.line_name SEPARATOR ', ') as lines " +
+        String getStops = "SELECT s.stop_id, st.name, st.city, st.state, s.arrival_time, s.departure_time, " +
+                         "GROUP_CONCAT(DISTINCT tcs.line_name SEPARATOR ', ') as 'lines' " +
                          "FROM stops s " +
                          "JOIN stations st ON s.station_id = st.station_id " +
                          "LEFT JOIN TransitLines_Contains_Stops tcs ON s.stop_id = tcs.stop_id " +
-                         "GROUP BY s.stop_id, st.station_name, st.city, st.state, s.arrival_time, s.departure_time " +
-                         "ORDER BY st.station_name, s.arrival_time";
+                         "GROUP BY s.stop_id, st.name, st.city, st.state, s.arrival_time, s.departure_time " +
+                         "ORDER BY st.name, s.arrival_time";
         
         PreparedStatement psStops = conn.prepareStatement(getStops);
         ResultSet stopsResult = psStops.executeQuery();
@@ -192,7 +192,7 @@
             int stopId = stopsResult.getInt("stop_id");
             out.print("<tr>");
             out.print("<td>" + stopId + "</td>");
-            out.print("<td>" + stopsResult.getString("station_name") + "</td>");
+            out.print("<td>" + stopsResult.getString("name") + "</td>");
             out.print("<td>" + stopsResult.getString("city") + "</td>");
             out.print("<td>" + stopsResult.getString("state") + "</td>");
             out.print("<td>" + stopsResult.getTime("arrival_time") + "</td>");

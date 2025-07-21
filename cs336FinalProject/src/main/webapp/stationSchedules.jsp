@@ -47,12 +47,12 @@
             <select name="station" required>
                 <option value="">Choose a station...</option>
                 <%
-                String getStations = "SELECT DISTINCT station_name FROM stations ORDER BY station_name";
+                String getStations = "SELECT DISTINCT name FROM stations ORDER BY name";
                 PreparedStatement psStations = conn.prepareStatement(getStations);
                 ResultSet stationsResult = psStations.executeQuery();
                 
                 while(stationsResult.next()) {
-                    String stationName = stationsResult.getString("station_name");
+                    String stationName = stationsResult.getString("name");
                     String selected = stationName.equals(selectedStation) ? "selected" : "";
                     out.println("<option value='" + stationName + "' " + selected + ">" + stationName + "</option>");
                 }
@@ -72,13 +72,13 @@
     <% if (selectedStation != null && !selectedStation.trim().isEmpty()) { %>
     
     <%
-    String getStationInfo = "SELECT st.station_name, st.city, st.state, COUNT(DISTINCT s.stop_id) as total_stops, " +
+    String getStationInfo = "SELECT st.name, st.city, st.state, COUNT(DISTINCT s.stop_id) as total_stops, " +
                            "COUNT(DISTINCT tcs.line_name) as total_lines " +
                            "FROM stations st " +
                            "LEFT JOIN stops s ON st.station_id = s.station_id " +
                            "LEFT JOIN TransitLines_Contains_Stops tcs ON s.stop_id = tcs.stop_id " +
-                           "WHERE st.station_name = ? " +
-                           "GROUP BY st.station_name, st.city, st.state";
+                           "WHERE st.name = ? " +
+                           "GROUP BY st.name, st.city, st.state";
     
     PreparedStatement psInfo = conn.prepareStatement(getStationInfo);
     psInfo.setString(1, selectedStation);
@@ -86,7 +86,7 @@
     
     if (infoResult.next()) {
         out.println("<div class='station-info'>");
-        out.println("<h3>🚉 " + infoResult.getString("station_name") + "</h3>");
+        out.println("<h3>🚉 " + infoResult.getString("name") + "</h3>");
         out.println("<p><strong>Location:</strong> " + infoResult.getString("city") + ", " + infoResult.getString("state") + "</p>");
         out.println("<p><strong>Total Stops:</strong> " + infoResult.getInt("total_stops") + " | <strong>Transit Lines:</strong> " + infoResult.getInt("total_lines") + "</p>");
         out.println("</div>");
@@ -116,7 +116,7 @@
                         ") " +
                         "JOIN stations st ON s.station_id = st.station_id " +
                         "JOIN transitlines tl ON t.line_name = tl.line_name " +
-                        "WHERE st.station_name = ? " +
+                        "WHERE st.name = ? " +
                         "ORDER BY s.departure_time, s.arrival_time";
     
     PreparedStatement psSchedule = conn.prepareStatement(getSchedule);
@@ -171,7 +171,7 @@
                      "JOIN stops s ON tcs.stop_id = s.stop_id " +
                      "JOIN stations st ON s.station_id = st.station_id " +
                      "LEFT JOIN trains t ON tl.line_name = t.line_name " +
-                     "WHERE st.station_name = ? " +
+                     "WHERE st.name = ? " +
                      "GROUP BY tl.line_name, tl.fare, tl.fareChild, tl.fareSenior, tl.fareDisabled";
     
     PreparedStatement psLines = conn.prepareStatement(getLines);
@@ -199,4 +199,4 @@
 </div>
 
 </body>
-</html>-8" pageEncoding="UTF
+</html>

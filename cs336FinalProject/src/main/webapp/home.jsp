@@ -74,6 +74,8 @@
     </form>
     
     <a href="viewReservations.jsp">View Reservations</a>
+    <br>
+    <a href="browseQuestions.jsp">Browse Questions</a>
     
 </body>
 </html>

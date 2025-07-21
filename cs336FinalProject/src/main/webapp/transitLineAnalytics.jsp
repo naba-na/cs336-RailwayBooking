@@ -47,14 +47,14 @@
     <%
     String topLineQuery = "SELECT t.line_name, tl.fare, tl.fareChild, tl.fareSenior, tl.fareDisabled, " +
                          "COUNT(r.res_id) as total_reservations, " +
-                         "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
-                         "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                         "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations, " +
+                         "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
                          "COUNT(DISTINCT r.user_id) as unique_customers, " +
                          "COUNT(DISTINCT t.train_id) as train_count, " +
-                         "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare " +
+                         "AVG(CASE WHEN r.isActive = true THEN r.total_fare END) as avg_fare " +
                          "FROM trains t " +
                          "JOIN transitlines tl ON t.line_name = tl.line_name " +
-                         "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                         "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                          "GROUP BY t.line_name, tl.fare, tl.fareChild, tl.fareSenior, tl.fareDisabled " +
                          "ORDER BY total_reservations DESC, total_revenue DESC " +
                          "LIMIT 1";
@@ -80,12 +80,12 @@
     <%
     String top5Query = "SELECT t.line_name, " +
                       "COUNT(r.res_id) as total_reservations, " +
-                      "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
-                      "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                      "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations, " +
+                      "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
                       "COUNT(DISTINCT r.user_id) as unique_customers, " +
                       "COUNT(DISTINCT t.train_id) as train_count " +
                       "FROM trains t " +
-                      "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                      "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                       "GROUP BY t.line_name " +
                       "ORDER BY total_reservations DESC, total_revenue DESC " +
                       "LIMIT 5";
@@ -122,10 +122,10 @@
         
         <%
         String highestRevenueQuery = "SELECT t.line_name, " +
-                                    "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
-                                    "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations " +
+                                    "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                                    "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations " +
                                     "FROM trains t " +
-                                    "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                                    "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                                     "GROUP BY t.line_name " +
                                     "HAVING total_revenue > 0 " +
                                     "ORDER BY total_revenue DESC " +
@@ -169,7 +169,7 @@
                            "COUNT(DISTINCT t.train_id) as train_count, " +
                            "ROUND(COUNT(DISTINCT r.user_id) / COUNT(DISTINCT t.train_id), 2) as customer_per_train " +
                            "FROM trains t " +
-                           "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                           "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                            "GROUP BY t.line_name " +
                            "HAVING train_count > 0 AND unique_customers > 0 " +
                            "ORDER BY customer_per_train DESC " +
@@ -207,13 +207,13 @@
     <%
     String allLinesQuery = "SELECT t.line_name, tl.fare, " +
                           "COUNT(r.res_id) as total_reservations, " +
-                          "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
-                          "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as total_revenue, " +
+                          "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations, " +
+                          "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as total_revenue, " +
                           "COUNT(DISTINCT r.user_id) as unique_customers, " +
                           "COUNT(DISTINCT t.train_id) as train_count " +
                           "FROM trains t " +
                           "JOIN transitlines tl ON t.line_name = tl.line_name " +
-                          "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                          "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                           "GROUP BY t.line_name, tl.fare " +
                           "ORDER BY total_reservations DESC, total_revenue DESC";
     

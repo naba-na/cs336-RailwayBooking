@@ -89,12 +89,13 @@ function showTab(tabName) {
         <%
         String selectedTransitLine = request.getParameter("transitLine");
         if ("transitLine".equals(request.getParameter("reportType")) || selectedTransitLine != null) {
-            String transitLineQuery = "SELECT r.res_id, r.res_date, r.booking_date, r.status, r.passenger_type, r.total_fare, " +
+            String transitLineQuery = "SELECT r.res_id, r.res_date, r.creationDate, r.isActive, tl.fare, r.total_fare, " +
                                      "u.firstname, u.lastname, u.username, t.train_id, t.line_name, " +
-                                     "st_origin.station_name as origin_station, st_dest.station_name as dest_station " +
+                                     "st_origin.name as origin_station, st_dest.name as dest_station " +
                                      "FROM reservations r " +
                                      "JOIN users u ON r.user_id = u.user_id " +
-                                     "JOIN trains t ON r.train_id = t.train_id " +
+                                     "JOIN trains t ON r.line_name = t.line_name " +
+                                     "JOIN transitlines tl on r.line_name = tl.line_name " +
                                      "JOIN stops s_origin ON r.origin_stop_id = s_origin.stop_id " +
                                      "JOIN stops s_dest ON r.dest_stop_id = s_dest.stop_id " +
                                      "JOIN stations st_origin ON s_origin.station_id = st_origin.station_id " +
@@ -104,7 +105,7 @@ function showTab(tabName) {
                 transitLineQuery += " WHERE t.line_name = ?";
             }
             
-            transitLineQuery += " ORDER BY r.booking_date DESC, t.line_name, r.res_id";
+            transitLineQuery += " ORDER BY r.creationDate DESC, t.line_name, r.res_id";
             
             PreparedStatement psTransitLine = conn.prepareStatement(transitLineQuery);
             if (selectedTransitLine != null && !selectedTransitLine.trim().isEmpty()) {
@@ -123,8 +124,8 @@ function showTab(tabName) {
             <th>Route</th>
             <th>Travel Date</th>
             <th>Booking Date</th>
-            <th>Passenger Type</th>
-            <th>Fare</th>
+            <th>Line's Fare</th>
+            <th>Customer's Fare</th>
             <th>Status</th>
         </tr>
         
@@ -134,7 +135,7 @@ function showTab(tabName) {
             hasTransitResults = true;
             String fullName = transitLineResult.getString("firstname") + " " + transitLineResult.getString("lastname");
             String route = transitLineResult.getString("origin_station") + " → " + transitLineResult.getString("dest_station");
-            String status = transitLineResult.getString("status");
+            String status = transitLineResult.getString("isActive");
             String rowClass = "cancelled".equals(status) ? "style='background-color: #ffe8e8;'" : "";
             
             out.print("<tr " + rowClass + ">");
@@ -144,9 +145,9 @@ function showTab(tabName) {
             out.print("<td>" + transitLineResult.getInt("train_id") + "</td>");
             out.print("<td>" + route + "</td>");
             out.print("<td>" + transitLineResult.getDate("res_date") + "</td>");
-            out.print("<td>" + transitLineResult.getTimestamp("booking_date") + "</td>");
-            out.print("<td>" + transitLineResult.getString("passenger_type").substring(0,1).toUpperCase() + transitLineResult.getString("passenger_type").substring(1) + "</td>");
+            out.print("<td>" + transitLineResult.getTimestamp("creationDate") + "</td>");
             out.print("<td>$" + String.format("%.2f", transitLineResult.getDouble("total_fare")) + "</td>");
+            out.print("<td>$" + String.format("%.2f", transitLineResult.getDouble("fare")) + "</td>");
             out.print("<td>" + status.substring(0,1).toUpperCase() + status.substring(1) + "</td>");
             out.print("</tr>");
         }

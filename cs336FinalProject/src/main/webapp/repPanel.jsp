@@ -37,7 +37,7 @@
     Connection conn = db.getConnection();
     
     String statsQuery = "SELECT " +
-                       "(SELECT COUNT(*) FROM reservations WHERE status = 'active') as active_reservations, " +
+                       "(SELECT COUNT(*) FROM reservations WHERE isActive = true) as active_reservations, " +
                        "(SELECT COUNT(*) FROM trains) as total_trains, " +
                        "(SELECT COUNT(*) FROM stations) as total_stations, " +
                        "(SELECT COUNT(*) FROM transitlines) as total_lines";

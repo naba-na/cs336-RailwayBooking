@@ -39,11 +39,11 @@
     
     <%
     String overallQuery = "SELECT " +
-                         "SUM(CASE WHEN status = 'active' THEN total_fare ELSE 0 END) as total_active_revenue, " +
-                         "SUM(CASE WHEN status = 'cancelled' THEN total_fare ELSE 0 END) as total_cancelled_revenue, " +
-                         "COUNT(CASE WHEN status = 'active' THEN 1 END) as active_bookings, " +
-                         "COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings, " +
-                         "AVG(CASE WHEN status = 'active' THEN total_fare END) as avg_fare " +
+                         "SUM(CASE WHEN isActive = true THEN total_fare ELSE 0 END) as total_active_revenue, " +
+                         "SUM(CASE WHEN isActive = false THEN total_fare ELSE 0 END) as total_cancelled_revenue, " +
+                         "COUNT(CASE WHEN isActive = true THEN 1 END) as active_bookings, " +
+                         "COUNT(CASE WHEN isActive = false THEN 1 END) as cancelled_bookings, " +
+                         "AVG(CASE WHEN isActive = true THEN total_fare END) as avg_fare " +
                          "FROM reservations";
     
     PreparedStatement psOverall = conn.prepareStatement(overallQuery);
@@ -87,13 +87,13 @@
         
         <%
         String lineRevenueQuery = "SELECT t.line_name, " +
-                                 "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_count, " +
-                                 "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as line_revenue, " +
-                                 "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_fare, " +
-                                 "COUNT(CASE WHEN r.status = 'cancelled' THEN 1 END) as cancelled_count, " +
-                                 "SUM(CASE WHEN r.status = 'cancelled' THEN r.total_fare ELSE 0 END) as lost_revenue " +
+                                 "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_count, " +
+                                 "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as line_revenue, " +
+                                 "AVG(CASE WHEN r.isActive = true THEN r.total_fare END) as avg_fare, " +
+                                 "COUNT(CASE WHEN r.isActive = false THEN 1 END) as cancelled_count, " +
+                                 "SUM(CASE WHEN r.isActive = false THEN r.total_fare ELSE 0 END) as lost_revenue " +
                                  "FROM trains t " +
-                                 "LEFT JOIN reservations r ON t.train_id = r.train_id " +
+                                 "LEFT JOIN reservations r ON t.line_name = r.line_name " +
                                  "GROUP BY t.line_name " +
                                  "ORDER BY line_revenue DESC";
         
@@ -137,10 +137,10 @@
         <%
         String customerRevenueQuery = "SELECT u.firstname, u.lastname, u.username, " +
                                      "COUNT(r.res_id) as total_reservations, " +
-                                     "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
-                                     "SUM(CASE WHEN r.status = 'active' THEN r.total_fare ELSE 0 END) as customer_revenue, " +
-                                     "AVG(CASE WHEN r.status = 'active' THEN r.total_fare END) as avg_customer_fare, " +
-                                     "MAX(r.booking_date) as last_booking " +
+                                     "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations, " +
+                                     "SUM(CASE WHEN r.isActive = true THEN r.total_fare ELSE 0 END) as customer_revenue, " +
+                                     "AVG(CASE WHEN r.isActive = true THEN r.total_fare END) as avg_customer_fare, " +
+                                     "MAX(r.creationDate) as last_booking " +
                                      "FROM users u " +
                                      "JOIN reservations r ON u.user_id = r.user_id " +
                                      "GROUP BY u.user_id, u.firstname, u.lastname, u.username " +
@@ -169,49 +169,6 @@
             out.print("</tr>");
             rank++;
         }
-        %>
-        </table>
-    </div>
-    
-    <div class="section">
-        <h2>🎫 Revenue by Passenger Type</h2>
-        <table>
-        <tr>
-            <th>Passenger Type</th>
-            <th>Reservations</th>
-            <th>Total Revenue</th>
-            <th>Average Fare</th>
-            <th>Revenue Share</th>
-        </tr>
-        
-        <%
-        String passengerTypeQuery = "SELECT passenger_type, " +
-                                   "COUNT(CASE WHEN status = 'active' THEN 1 END) as type_count, " +
-                                   "SUM(CASE WHEN status = 'active' THEN total_fare ELSE 0 END) as type_revenue, " +
-                                   "AVG(CASE WHEN status = 'active' THEN total_fare END) as avg_type_fare " +
-                                   "FROM reservations " +
-                                   "GROUP BY passenger_type " +
-                                   "ORDER BY type_revenue DESC";
-        
-        PreparedStatement psPassengerType = conn.prepareStatement(passengerTypeQuery);
-        ResultSet passengerTypeResult = psPassengerType.executeQuery();
-        
-        while(passengerTypeResult.next()) {
-            double typeRevenue = passengerTypeResult.getDouble("type_revenue");
-            double avgTypeFare = passengerTypeResult.getDouble("avg_type_fare");
-            double typeRevenueShare = totalActiveRevenue > 0 ? (typeRevenue / totalActiveRevenue) * 100 : 0;
-            String passengerType = passengerTypeResult.getString("passenger_type");
-            
-            out.print("<tr>");
-            out.print("<td>" + passengerType.substring(0,1).toUpperCase() + passengerType.substring(1) + "</td>");
-            out.print("<td>" + passengerTypeResult.getInt("type_count") + "</td>");
-            out.print("<td>$" + String.format("%.2f", typeRevenue) + "</td>");
-            out.print("<td>$" + String.format("%.2f", avgTypeFare) + "</td>");
-            out.print("<td>" + String.format("%.1f%%", typeRevenueShare) + "</td>");
-            out.print("</tr>");
-        }
-        
-        conn.close();
         %>
         </table>
     </div>

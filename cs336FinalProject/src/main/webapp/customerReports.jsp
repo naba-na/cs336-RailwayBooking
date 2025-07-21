@@ -78,12 +78,13 @@
     <% if (selectedLine != null && selectedDate != null && !selectedLine.trim().isEmpty() && !selectedDate.trim().isEmpty()) { %>
     
     <%
-    String getCustomers = "SELECT DISTINCT u.username, u.firstname, u.lastname, u.email, r.res_id, r.passenger_type, " +
-                         "r.total_fare, r.status, t.train_id, " +
-                         "st_origin.station_name as origin_station, st_dest.station_name as dest_station " +
+    String getCustomers = "SELECT DISTINCT u.username, u.firstname, u.lastname, u.email, r.res_id, tl.fare, " +
+                         "r.total_fare, r.isActive, t.train_id, " +
+                         "st_origin.name as origin_station, st_dest.name as dest_station " +
                          "FROM reservations r " +
                          "JOIN users u ON r.user_id = u.user_id " +
-                         "JOIN trains t ON r.train_id = t.train_id " +
+                         "JOIN trains t ON r.line_name = t.line_name " +
+                         "JOIN transitlines tl on r.line_name = tl.line_name " +
                          "JOIN stops s_origin ON r.origin_stop_id = s_origin.stop_id " +
                          "JOIN stops s_dest ON r.dest_stop_id = s_dest.stop_id " +
                          "JOIN stations st_origin ON s_origin.station_id = st_origin.station_id " +
@@ -99,10 +100,10 @@
     String getSummary = "SELECT COUNT(DISTINCT r.user_id) as unique_customers, " +
                        "COUNT(r.res_id) as total_reservations, " +
                        "SUM(r.total_fare) as total_revenue, " +
-                       "COUNT(CASE WHEN r.status = 'active' THEN 1 END) as active_reservations, " +
-                       "COUNT(CASE WHEN r.status = 'cancelled' THEN 1 END) as cancelled_reservations " +
+                       "COUNT(CASE WHEN r.isActive = true THEN 1 END) as active_reservations, " +
+                       "COUNT(CASE WHEN r.isActive = false THEN 1 END) as cancelled_reservations " +
                        "FROM reservations r " +
-                       "JOIN trains t ON r.train_id = t.train_id " +
+                       "JOIN trains t ON r.line_name = t.line_name " +
                        "WHERE t.line_name = ? AND r.res_date = ?";
     
     PreparedStatement psSummary = conn.prepareStatement(getSummary);
@@ -136,8 +137,8 @@
         <th>Reservation ID</th>
         <th>Train ID</th>
         <th>From → To</th>
-        <th>Passenger Type</th>
-        <th>Fare</th>
+        <th>Line's Fare</th>
+        <th>Customer's Fare</th>
         <th>Status</th>
     </tr>
     
@@ -147,8 +148,8 @@
         hasCustomers = true;
         String fullName = customersResult.getString("firstname") + " " + customersResult.getString("lastname");
         String route = customersResult.getString("origin_station") + " → " + customersResult.getString("dest_station");
-        String status = customersResult.getString("status");
-        String rowClass = "cancelled".equals(status) ? "style='background-color: #ffe8e8;'" : "";
+        String status = customersResult.getString("isActive");
+        String rowClass = "0".equals(status) ? "style='background-color: #ffe8e8;'" : "";
         
         out.print("<tr " + rowClass + ">");
         out.print("<td>" + fullName + "</td>");
@@ -157,7 +158,7 @@
         out.print("<td>" + customersResult.getInt("res_id") + "</td>");
         out.print("<td>" + customersResult.getInt("train_id") + "</td>");
         out.print("<td>" + route + "</td>");
-        out.print("<td>" + customersResult.getString("passenger_type").substring(0,1).toUpperCase() + customersResult.getString("passenger_type").substring(1) + "</td>");
+        out.print("<td>" + String.format("%.2f", customersResult.getDouble("fare")) + "</td>");
         out.print("<td>$" + String.format("%.2f", customersResult.getDouble("total_fare")) + "</td>");
         out.print("<td>" + status.substring(0,1).toUpperCase() + status.substring(1) + "</td>");
         out.print("</tr>");
