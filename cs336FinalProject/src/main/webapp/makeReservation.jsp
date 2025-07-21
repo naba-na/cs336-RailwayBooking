@@ -174,5 +174,7 @@ if(result < 1){
 conn.close();
 
 %>
+
+<a href="home.jsp">back to home</a>
 </body>
 </html>
