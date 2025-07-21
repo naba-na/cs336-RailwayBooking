@@ -64,25 +64,41 @@ foreign key (line_name) references transitlines(line_name)
 );
 
 CREATE TABLE TransitLines_Contains_Stops(
-line_name varchar(100) not null primary key,
+line_name varchar(100) not null,
 stop_id int,
+primary key(line_name, stop_id),
 foreign key (line_name) references transitlines(line_name),
 foreign key (stop_id) references stops(stop_id)
 );
 
 CREATE TABLE reservations(
 res_id int AUTO_INCREMENT not null primary key,
-res_date date,
+creationDate date,
 user_id int,
+res_date date,
+res_time time,
+dest_arrival_time time,
 line_name varchar(100),
-dest_stop_id int,
+origin_station_name varchar(50),
 origin_stop_id int,
-eligible_for_discount bool,
+dest_station_name varchar(50),
+dest_stop_id int,
 total_fare float,
+isActive bool,
 foreign key (user_id) references customers(user_id),
 foreign key (line_name) references transitlines(line_name),
 foreign key (dest_stop_id) references stops(stop_id),
 foreign key (origin_stop_id) references stops(stop_id)
+);
+
+CREATE TABLE questions(
+question_id int AUTO_INCREMENT NOT NULL primary key,
+question_text TEXT,
+response_text TEXT,
+user_id int,
+rep_ssn varchar(11),
+foreign key (user_id) references users(user_id),
+foreign key (rep_ssn) references employees_reps(ssn)
 );
 
 INSERT INTO customers(username, password, firstname, lastname, email)

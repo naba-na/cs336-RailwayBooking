@@ -33,7 +33,7 @@ int d_station_id = foundStations.getInt(2);
 
 
 
-String findStops = "SELECT o.departure_time, d.arrival_time FROM stops o, stops d WHERE o.station_id = ? AND d.station_id = ? AND o.departure_time < d.arrival_time";
+String findStops = "SELECT o.departure_time, d.arrival_time FROM stops o, stops d WHERE o.station_id = ? AND d.station_id = ? AND o.departure_time < d.arrival_time ORDER BY o.departure_time ASC, o.arrival_time ASC";
 PreparedStatement psStops = conn.prepareStatement(findStops);
 psStops.setInt(1, o_station_id);
 psStops.setInt(2,d_station_id);
