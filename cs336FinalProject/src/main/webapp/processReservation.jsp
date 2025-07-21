@@ -3,15 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Reservation Confirmation</title>
-<style>
-    .confirmation { max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #4CAF50; background: #f9fff9; }
-    .error { max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #f44336; background: #fff9f9; }
-</style>
 </head>
 <body>
 <%
@@ -109,8 +103,7 @@
             generatedKeys.next();
             int reservation_id = generatedKeys.getInt(1);
             
-            out.println("<div class='confirmation'>");
-            out.println("<h2>✅ Reservation Confirmed!</h2>");
+            out.println("<h2>Reservation Confirmed!</h2>");
             out.println("<p><strong>Reservation ID:</strong> " + reservation_id + "</p>");
             out.println("<p><strong>Train:</strong> #" + train_id + " (" + line_name + ")</p>");
             out.println("<p><strong>From:</strong> " + origin + "</p>");
@@ -119,25 +112,22 @@
             out.println("<p><strong>Passenger Type:</strong> " + passenger_type.substring(0,1).toUpperCase() + passenger_type.substring(1) + "</p>");
             out.println("<p><strong>Trip Type:</strong> " + (trip_type.equals("round_trip") ? "Round Trip" : "One Way") + "</p>");
             out.println("<p><strong>Total Fare:</strong> $" + String.format("%.2f", total_fare) + "</p>");
-            out.println("</div>");
         } else {
             throw new Exception("Failed to create reservation");
         }
         
     } catch (Exception e) {
-        out.println("<div class='error'>");
-        out.println("<h2>❌ Reservation Failed</h2>");
+        out.println("<h2>Reservation Failed</h2>");
         out.println("<p>Error: " + e.getMessage() + "</p>");
-        out.println("</div>");
     } finally {
         conn.close();
     }
 %>
 
-<div style="text-align: center; margin: 20px;">
+<p>
     <a href="viewReservations.jsp">View My Reservations</a> | 
     <a href="home.jsp">Return to Home</a>
-</div>
+</p>
 
 </body>
 </html>

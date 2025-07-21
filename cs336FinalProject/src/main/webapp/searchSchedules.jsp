@@ -5,11 +5,9 @@
 <%@ page session="true" %>
 <%@ page language="java" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*,java.time.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Schedule Search Results</title>
 </head>
 <body>
 <% 
@@ -42,9 +40,8 @@ ResultSet foundStops = psStops.executeQuery();
 
 <h1>Schedule on <%= date %></h1>
 <h1>From <%=origin %> (<%=o_station_id %>) to <%=destination %> (<%=d_station_id %>)</h1>
-<br><br>
 
-<table>
+<table border="1">
 <tr>
 <th>Origin Departure Time</th>
 <th>Destination Arrival Time</th>
@@ -55,8 +52,10 @@ while(foundStops.next()){
 	out.print("<tr>");
 	out.print("<td>");
 	out.print(foundStops.getString(1));
+	out.print("</td>");
 	out.print("<td>");
 	out.print(foundStops.getString(2));
+	out.print("</td>");
 	out.print("</tr>");
 } %>
 

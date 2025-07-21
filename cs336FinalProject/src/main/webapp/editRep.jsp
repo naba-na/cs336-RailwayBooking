@@ -3,23 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Edit Representative</title>
-<style>
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .form-group { margin: 15px 0; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-    .btn { background: #007cba; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
-    .btn:hover { background: #005a87; }
-    .btn-cancel { background: #6c757d; }
-    .btn-cancel:hover { background: #5a6268; }
-    .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 4px; margin: 15px 0; }
-    .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin: 15px 0; }
-</style>
 </head>
 <body>
 <%
@@ -61,9 +47,9 @@
             
             if (checkResult.next()) {
                 if (checkResult.getString("username").equals(newUsername)) {
-                    message = "<div class='error'>Username already exists!</div>";
+                    message = "<p>Username already exists!</p>";
                 } else {
-                    message = "<div class='error'>Email already exists!</div>";
+                    message = "<p>Email already exists!</p>";
                 }
             } else {
                 String updateUser;
@@ -100,16 +86,16 @@
                     int empResult = psEmployee.executeUpdate();
                     
                     if (empResult > 0) {
-                        message = "<div class='success'>Representative updated successfully!</div>";
+                        message = "<p>Representative updated successfully!</p>";
                     } else {
-                        message = "<div class='error'>Failed to update employee record.</div>";
+                        message = "<p>Failed to update employee record.</p>";
                     }
                 } else {
-                    message = "<div class='error'>Failed to update user account.</div>";
+                    message = "<p>Failed to update user account.</p>";
                 }
             }
         } catch (Exception e) {
-            message = "<div class='error'>Error: " + e.getMessage() + "</div>";
+            message = "<p>Error: " + e.getMessage() + "</p>";
         }
     }
     
@@ -138,55 +124,39 @@
     conn.close();
 %>
 
-<div class="container">
-    <h1>✏️ Edit Representative</h1>
-    <p><a href="manageReps.jsp">← Back to Manage Representatives</a></p>
+<h1>Edit Representative</h1>
+<p><a href="manageReps.jsp">Back to Manage Representatives</a></p>
+
+<%= message %>
+
+<form method="post">
+    <label>Username:</label><br/>
+    <input type="text" name="username" required value="<%= currentUsername %>"><br/>
     
-    <%= message %>
+    <label>Password (leave blank to keep current):</label><br/>
+    <input type="password" name="password" placeholder="Enter new password or leave blank"><br/>
     
-    <form method="post">
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required value="<%= currentUsername %>">
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Password (leave blank to keep current):</label>
-            <input type="password" name="password" id="password" placeholder="Enter new password or leave blank">
-        </div>
-        
-        <div class="form-group">
-            <label for="firstname">First Name:</label>
-            <input type="text" name="firstname" id="firstname" required value="<%= currentFirstname %>">
-        </div>
-        
-        <div class="form-group">
-            <label for="lastname">Last Name:</label>
-            <input type="text" name="lastname" id="lastname" required value="<%= currentLastname %>">
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required value="<%= currentEmail %>">
-        </div>
-        
-        <div class="form-group">
-            <label for="ssn">SSN (XXX-XX-XXXX):</label>
-            <input type="text" name="ssn" id="ssn" pattern="[0-9]{3}-[0-9]{2}-[0-9]{4}" required value="<%= currentSsn %>">
-        </div>
-        
-        <div class="form-group">
-            <label for="acc_type">Account Type:</label>
-            <select name="acc_type" id="acc_type" required>
-                <option value="rep" <%= "rep".equals(currentAccType) ? "selected" : "" %>>Customer Representative</option>
-                <option value="admin" <%= "admin".equals(currentAccType) ? "selected" : "" %>>Administrator</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn">Update Representative</button>
-        <a href="manageReps.jsp" class="btn btn-cancel">Cancel</a>
-    </form>
-</div>
+    <label>First Name:</label><br/>
+    <input type="text" name="firstname" required value="<%= currentFirstname %>"><br/>
+    
+    <label>Last Name:</label><br/>
+    <input type="text" name="lastname" required value="<%= currentLastname %>"><br/>
+    
+    <label>Email:</label><br/>
+    <input type="email" name="email" required value="<%= currentEmail %>"><br/>
+    
+    <label>SSN (XXX-XX-XXXX):</label><br/>
+    <input type="text" name="ssn" pattern="[0-9]{3}-[0-9]{2}-[0-9]{4}" required value="<%= currentSsn %>"><br/>
+    
+    <label>Account Type:</label><br/>
+    <select name="acc_type" required>
+        <option value="rep" <%= "rep".equals(currentAccType) ? "selected" : "" %>>Customer Representative</option>
+        <option value="admin" <%= "admin".equals(currentAccType) ? "selected" : "" %>>Administrator</option>
+    </select><br/>
+    
+    <input type="submit" value="Update Representative">
+    <a href="manageReps.jsp">Cancel</a>
+</form>
 
 </body>
 </html>

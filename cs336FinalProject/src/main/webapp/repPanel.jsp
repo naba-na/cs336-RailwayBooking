@@ -3,25 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Customer Representative Panel</title>
-<style>
-    .rep-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
-    .dashboard-card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #f9f9f9; }
-    .dashboard-card h3 { margin-top: 0; color: #333; }
-    .btn { display: inline-block; padding: 10px 15px; margin: 5px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; }
-    .btn:hover { background: #005a87; }
-    .btn-success { background: #28a745; }
-    .btn-success:hover { background: #218838; }
-    .btn-warning { background: #ffc107; color: #212529; }
-    .btn-warning:hover { background: #e0a800; }
-    .stats-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #28a745; }
-    .urgent { background: #fff3cd; border-left: 4px solid #856404; }
-</style>
 </head>
 <body>
 <%
@@ -65,61 +49,39 @@
     conn.close();
 %>
 
-<div class="rep-container">
-    <h1>🎧 Customer Representative Dashboard</h1>
-    <p>Welcome, <strong><%= username %></strong> | <a href="home.jsp">← Back to Home</a></p>
-    
-    <div class="dashboard-grid">
-        <div class="stats-box">
-            <h3>📊 System Overview</h3>
-            <p><strong>Active Reservations:</strong> <%= activeReservations %></p>
-            <p><strong>Total Trains:</strong> <%= totalTrains %></p>
-            <p><strong>Total Stations:</strong> <%= totalStations %></p>
-            <p><strong>Transit Lines:</strong> <%= totalLines %></p>
-        </div>
-        
-        <% if (pendingQuestions > 0) { %>
-        <div class="stats-box urgent">
-            <h3>⚠️ Urgent</h3>
-            <p><strong>Pending Customer Questions:</strong> <%= pendingQuestions %></p>
-            <a href="manageQuestions.jsp" class="btn btn-warning">Review Questions</a>
-        </div>
-        <% } %>
-    </div>
-    
-    <div class="dashboard-grid">
-        
-        <div class="dashboard-card">
-            <h3>🚂 Train Schedule Management</h3>
-            <p>Add, edit, and delete train schedules and routes.</p>
-            <a href="manageSchedules.jsp" class="btn">Manage Schedules</a>
-            <a href="addSchedule.jsp" class="btn btn-success">Add New Schedule</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3>❓ Customer Support</h3>
-            <p>Manage customer questions and provide answers.</p>
-            <a href="manageQuestions.jsp" class="btn">Manage Questions</a>
-            <a href="browseQuestions.jsp" class="btn">Browse Q&A</a>
-            <% if (pendingQuestions > 0) { %>
-                <span class="btn btn-warning"><%= pendingQuestions %> Pending</span>
-            <% } %>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3>🚉 Station Reports</h3>
-            <p>Generate train schedules for specific stations.</p>
-            <a href="stationSchedules.jsp" class="btn">Station Schedules</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3>👥 Customer Reports</h3>
-            <p>View customers with reservations on specific lines and dates.</p>
-            <a href="customerReports.jsp" class="btn">Customer Reports</a>
-        </div>
-        
-    </div>
-</div>
+<h1>Customer Representative Dashboard</h1>
+<p>Welcome, <strong><%= username %></strong> | <a href="home.jsp">Back to Home</a></p>
+
+<h2>System Overview</h2>
+<p><strong>Active Reservations:</strong> <%= activeReservations %></p>
+<p><strong>Total Trains:</strong> <%= totalTrains %></p>
+<p><strong>Total Stations:</strong> <%= totalStations %></p>
+<p><strong>Transit Lines:</strong> <%= totalLines %></p>
+
+<% if (pendingQuestions > 0) { %>
+<p><strong>Pending Customer Questions:</strong> <%= pendingQuestions %></p>
+<% } %>
+
+<h2>Train Schedule Management</h2>
+<p>Add, edit, and delete train schedules and routes.</p>
+<a href="manageSchedules.jsp">Manage Schedules</a> | 
+<a href="addSchedule.jsp">Add New Schedule</a>
+
+<h2>Customer Support</h2>
+<p>Manage customer questions and provide answers.</p>
+<a href="manageQuestions.jsp">Manage Questions</a> | 
+<a href="browseQuestions.jsp">Browse Q&A</a>
+<% if (pendingQuestions > 0) { %>
+    <p><%= pendingQuestions %> questions pending</p>
+<% } %>
+
+<h2>Station Reports</h2>
+<p>Generate train schedules for specific stations.</p>
+<a href="stationSchedules.jsp">Station Schedules</a>
+
+<h2>Customer Reports</h2>
+<p>View customers with reservations on specific lines and dates.</p>
+<a href="customerReports.jsp">Customer Reports</a>
 
 </body>
 </html>

@@ -3,28 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Manage Customer Questions</title>
-<style>
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .question-card { border: 1px solid #ddd; margin: 15px 0; padding: 15px; border-radius: 8px; }
-    .pending { border-left: 4px solid #ffc107; background: #fff9c4; }
-    .answered { border-left: 4px solid #28a745; background: #f8fff8; }
-    .question-header { display: flex; justify-content: between; align-items: center; margin-bottom: 10px; }
-    .question-meta { font-size: 12px; color: #666; }
-    .question-text { font-size: 16px; margin: 10px 0; }
-    .answer-section { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 4px; }
-    .btn { display: inline-block; padding: 8px 12px; margin: 5px; text-decoration: none; border-radius: 4px; }
-    .btn-primary { background: #007cba; color: white; border: none; cursor: pointer; }
-    .btn-success { background: #28a745; color: white; border: none; cursor: pointer; }
-    .btn-danger { background: #dc3545; color: white; }
-    .btn:hover { opacity: 0.8; }
-    textarea { width: 100%; min-height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-    .search-box { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-</style>
 </head>
 <body>
 <%
@@ -72,10 +53,10 @@
             
             int result = psAnswer.executeUpdate();
             if (result > 0) {
-                message = "<div style='background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 10px 0;'>Question answered successfully!</div>";
+                message = "<p>Question answered successfully!</p>";
             }
         } catch (Exception e) {
-            message = "<div style='background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 10px 0;'>Error answering question: " + e.getMessage() + "</div>";
+            message = "<p>Error answering question: " + e.getMessage() + "</p>";
         }
     }
     
@@ -114,84 +95,60 @@
     ResultSet questionsResult = psQuestions.executeQuery();
 %>
 
-<div class="container">
-    <h1>❓ Manage Customer Questions</h1>
-    <p><a href="repPanel.jsp">← Back to Rep Panel</a> | <a href="browseQuestions.jsp">Browse All Q&A</a></p>
+<h1>Manage Customer Questions</h1>
+<p><a href="repPanel.jsp">Back to Rep Panel</a> | <a href="browseQuestions.jsp">Browse All Q&A</a></p>
+
+<%= message %>
+
+<h2>Search Questions</h2>
+<form method="get">
+    <label>Search by keyword:</label><br/>
+    <input type="text" name="searchKeyword" placeholder="Search in questions and answers..." value="<%= searchKeyword != null ? searchKeyword : "" %>"><br/>
     
-    <%= message %>
+    <label>Status:</label><br/>
+    <select name="statusFilter">
+        <option value="">All Status</option>
+        <option value="pending" <%= "pending".equals(statusFilter) ? "selected" : "" %>>Pending</option>
+        <option value="answered" <%= "answered".equals(statusFilter) ? "selected" : "" %>>Answered</option>
+    </select><br/>
+    <input type="submit" value="Search">
+</form>
+
+<%
+boolean hasQuestions = false;
+while(questionsResult.next()) {
+    hasQuestions = true;
+    int questionId = questionsResult.getInt("question_id");
+    String status = questionsResult.getString("status");
+    String customerName = questionsResult.getString("firstname") + " " + questionsResult.getString("lastname");
+    String customerUsername = questionsResult.getString("customer_username");
     
-    <div class="search-box">
-        <h3>🔍 Search Questions</h3>
-        <form method="get">
-            <div style="display: grid; grid-template-columns: 1fr 200px 100px; gap: 10px; align-items: end;">
-                <div>
-                    <label>Search by keyword:</label>
-                    <input type="text" name="searchKeyword" placeholder="Search in questions and answers..." value="<%= searchKeyword != null ? searchKeyword : "" %>">
-                </div>
-                <div>
-                    <label>Status:</label>
-                    <select name="statusFilter">
-                        <option value="">All Status</option>
-                        <option value="pending" <%= "pending".equals(statusFilter) ? "selected" : "" %>>Pending</option>
-                        <option value="answered" <%= "answered".equals(statusFilter) ? "selected" : "" %>>Answered</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-        </form>
-    </div>
+    out.println("<h3>Question #" + questionId + " - " + status.toUpperCase() + "</h3>");
+    out.println("<p><strong>From:</strong> " + customerName + " (" + customerUsername + ") | " + questionsResult.getTimestamp("created_date") + "</p>");
     
-    <div>
-        <%
-        boolean hasQuestions = false;
-        while(questionsResult.next()) {
-            hasQuestions = true;
-            int questionId = questionsResult.getInt("question_id");
-            String status = questionsResult.getString("status");
-            String customerName = questionsResult.getString("firstname") + " " + questionsResult.getString("lastname");
-            String customerUsername = questionsResult.getString("customer_username");
-            
-            out.println("<div class='question-card " + status + "'>");
-            out.println("<div class='question-header'>");
-            out.println("<div>");
-            out.println("<strong>Question #" + questionId + "</strong> - " + status.toUpperCase());
-            out.println("<div class='question-meta'>From: " + customerName + " (" + customerUsername + ") | " + questionsResult.getTimestamp("created_date") + "</div>");
-            out.println("</div>");
-            out.println("</div>");
-            
-            out.println("<div class='question-text'>");
-            out.println("<strong>Question:</strong> " + questionsResult.getString("question_text"));
-            out.println("</div>");
-            
-            if ("answered".equals(status)) {
-                out.println("<div class='answer-section'>");
-                out.println("<strong>Answer:</strong> " + questionsResult.getString("answer_text"));
-                out.println("<div class='question-meta'>Answered by: " + questionsResult.getString("rep_username") + " on " + questionsResult.getTimestamp("answered_date") + "</div>");
-                out.println("</div>");
-            } else {
-                out.println("<form method='post'>");
-                out.println("<input type='hidden' name='answerQuestionId' value='" + questionId + "'>");
-                out.println("<div style='margin: 10px 0;'>");
-                out.println("<label><strong>Your Answer:</strong></label>");
-                out.println("<textarea name='answerText' placeholder='Type your answer here...' required></textarea>");
-                out.println("</div>");
-                out.println("<button type='submit' class='btn btn-success'>Submit Answer</button>");
-                out.println("</form>");
-            }
-            
-            out.println("</div>");
-        }
-        
-        if (!hasQuestions) {
-            out.println("<div class='question-card'>");
-            out.println("<p>No questions found matching your criteria.</p>");
-            out.println("</div>");
-        }
-        
-        conn.close();
-        %>
-    </div>
-</div>
+    out.println("<p><strong>Question:</strong> " + questionsResult.getString("question_text") + "</p>");
+    
+    if ("answered".equals(status)) {
+        out.println("<p><strong>Answer:</strong> " + questionsResult.getString("answer_text") + "</p>");
+        out.println("<p><em>Answered by: " + questionsResult.getString("rep_username") + " on " + questionsResult.getTimestamp("answered_date") + "</em></p>");
+    } else {
+        out.println("<form method='post'>");
+        out.println("<input type='hidden' name='answerQuestionId' value='" + questionId + "'>");
+        out.println("<label><strong>Your Answer:</strong></label><br/>");
+        out.println("<textarea name='answerText' rows='4' cols='50' placeholder='Type your answer here...' required></textarea><br/>");
+        out.println("<input type='submit' value='Submit Answer'>");
+        out.println("</form>");
+    }
+    
+    out.println("<hr>");
+}
+
+if (!hasQuestions) {
+    out.println("<p>No questions found matching your criteria.</p>");
+}
+
+conn.close();
+%>
 
 </body>
 </html>

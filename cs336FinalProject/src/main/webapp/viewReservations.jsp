@@ -5,11 +5,9 @@
 <%@ page session="true" %>
 <%@ page language="java" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*,java.time.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+<title>View Reservations</title>
 </head>
 <body>
 <%
@@ -37,9 +35,9 @@ ResultSet resultPRes = psPRes.executeQuery();
 %>
 
 <h1>Reservations</h1>
-<br>
-<h2>Active Reservations </h2>
-<table>
+
+<h2>Active Reservations</h2>
+<table border="1">
 
 <tr>
 <th>Reservation ID</th>
@@ -61,7 +59,7 @@ ResultSet resultPRes = psPRes.executeQuery();
 
 <%
 if(!resultARes.isBeforeFirst()){
-	out.print("No active reservations!");
+	out.print("<tr><td colspan='15'>No active reservations!</td></tr>");
 }else{
 	while(resultARes.next()){
 		out.print("<tr>");
@@ -70,15 +68,15 @@ if(!resultARes.isBeforeFirst()){
 			out.print(resultARes.getString(i));
 			out.print("</td>");
 		}	
+		out.print("<td></td><td></td>");
 		out.print("</tr>");
 	}
 }
 %>
 </table>
 
-<br>
-<h2>Past Reservations </h2>
-<table>
+<h2>Past Reservations</h2>
+<table border="1">
 
 <tr>
 <th>Reservation ID</th>
@@ -100,7 +98,7 @@ if(!resultARes.isBeforeFirst()){
 
 <%
 if(!resultPRes.isBeforeFirst()){
-	out.print("No past reservations!");
+	out.print("<tr><td colspan='15'>No past reservations!</td></tr>");
 }else{
 	while(resultPRes.next()){
 		out.print("<tr>");
@@ -109,6 +107,7 @@ if(!resultPRes.isBeforeFirst()){
 			out.print(resultPRes.getString(i));
 			out.print("</td>");
 		}	
+		out.print("<td></td><td></td>");
 		out.print("</tr>");
 	}
 }
@@ -116,15 +115,14 @@ if(!resultPRes.isBeforeFirst()){
 conn.close();
 %>
 
-
 </table>
-<br>
+
 <form action="cancelReservation.jsp" method="post">
 	Enter ID of reservation you want to cancel: <input type="text" name="resID" required>
-	</form>
-<br>
+	<input type="submit" value="Cancel Reservation">
+</form>
+
 <a href="home.jsp">back to home</a>
-	
 	
 </body>
 </html>

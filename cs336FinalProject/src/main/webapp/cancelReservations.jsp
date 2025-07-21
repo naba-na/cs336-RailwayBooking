@@ -3,15 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Cancel Reservation</title>
-<style>
-    .success { max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #4CAF50; background: #f9fff9; }
-    .error { max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #f44336; background: #fff9f9; }
-</style>
 </head>
 <body>
 <%
@@ -24,10 +18,8 @@
     String res_id = request.getParameter("res_id");
     
     if (res_id == null || res_id.trim().isEmpty()) {
-        out.println("<div class='error'>");
-        out.println("<h2>❌ Error</h2>");
+        out.println("<h2>Error</h2>");
         out.println("<p>No reservation ID provided.</p>");
-        out.println("</div>");
     } else {
         bookingDB db = new bookingDB();
         Connection conn = db.getConnection();
@@ -77,8 +69,7 @@
             int rowsAffected = psCancel.executeUpdate();
             
             if (rowsAffected > 0) {
-                out.println("<div class='success'>");
-                out.println("<h2>✅ Reservation Cancelled Successfully</h2>");
+                out.println("<h2>Reservation Cancelled Successfully</h2>");
                 out.println("<p><strong>Cancelled Reservation Details:</strong></p>");
                 out.println("<p><strong>Reservation ID:</strong> " + res_id + "</p>");
                 out.println("<p><strong>Train:</strong> #" + train_id + " (" + line_name + ")</p>");
@@ -87,26 +78,23 @@
                 out.println("<p><strong>Travel Date:</strong> " + res_date + "</p>");
                 out.println("<p><strong>Refund Amount:</strong> $" + String.format("%.2f", total_fare) + "</p>");
                 out.println("<p><em>Your refund will be processed within 3-5 business days.</em></p>");
-                out.println("</div>");
             } else {
                 throw new Exception("Failed to cancel reservation");
             }
             
         } catch (Exception e) {
-            out.println("<div class='error'>");
-            out.println("<h2>❌ Cancellation Failed</h2>");
+            out.println("<h2>Cancellation Failed</h2>");
             out.println("<p>Error: " + e.getMessage() + "</p>");
-            out.println("</div>");
         } finally {
             conn.close();
         }
     }
 %>
 
-<div style="text-align: center; margin: 20px;">
+<p>
     <a href="viewReservations.jsp">View My Reservations</a> | 
     <a href="home.jsp">Return to Home</a>
-</div>
+</p>
 
 </body>
 </html>

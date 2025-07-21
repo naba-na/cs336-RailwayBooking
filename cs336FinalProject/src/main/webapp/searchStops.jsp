@@ -3,16 +3,9 @@
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%@ page session="true" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*,java.time.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Train Stops</title>
-<style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-</style>
 </head>
 <body>
 <% 
@@ -54,9 +47,7 @@ ResultSet results = psStops.executeQuery();
 
 <h1>Stops for train #<%=trainid%> (<%=line_name%>)</h1>
 
-<br><br>
-
-<table>
+<table border="1">
 <tr>
 <th>Line Name</th>
 <th>Fare</th>

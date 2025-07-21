@@ -5,11 +5,9 @@
 <%@ page session="true" %>
 <%@ page language="java" %>
 <%@ page import="java.io.*,java.util.*,java.sql.*,java.time.*"%>
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Reservation Result</title>
 </head>
 <body>
 <% 
