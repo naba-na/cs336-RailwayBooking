@@ -21,18 +21,18 @@ String firstname = request.getParameter("firstname");
 String lastname = request.getParameter("lastname");
 String email = request.getParameter("email");
 
-String findUsername = "SELECT * FROM customers WHERE username = ?";
+String findUsername = "SELECT * FROM users WHERE username = ?";
 PreparedStatement ps1 = conn.prepareStatement(findUsername);
 ps1.setString(1, username);
 ResultSet result1 = ps1.executeQuery();
 
-String findEmail = "SELECT * FROM customers WHERE email = ?";
+String findEmail = "SELECT * FROM users WHERE email = ?";
 PreparedStatement ps2 = conn.prepareStatement(findEmail);
 ps2.setString(1, email);
 ResultSet result2 = ps2.executeQuery();
 
 if(!result1.isBeforeFirst() && !result2.isBeforeFirst()){
-	String update = "INSERT INTO customers(username, password, firstname, lastname, email) VALUES (?, ?, ?, ?, ?)";
+	String update = "INSERT INTO users(username, password, firstname, lastname, email) VALUES (?, ?, ?, ?, ?)";
 	PreparedStatement ps3 = conn.prepareStatement(update);
 	ps3.setString(1, username);
 	ps3.setString(2, password);
