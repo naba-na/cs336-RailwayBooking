@@ -126,12 +126,12 @@ if (!hasTransitResults) {
 <%
 String selectedCustomer = request.getParameter("customerName");
 if ("customer".equals(request.getParameter("reportType")) || selectedCustomer != null) {
-    String customerQuery = "SELECT r.res_id, r.res_date, r.booking_date, r.status, r.passenger_type, r.total_fare, " +
+    String customerQuery = "SELECT r.res_id, r.res_date, r.creationDate, r.isActive, r.total_fare, " +
                           "u.firstname, u.lastname, u.username, u.email, t.train_id, t.line_name, " +
-                          "st_origin.station_name as origin_station, st_dest.station_name as dest_station " +
+                          "st_origin.name as origin_station, st_dest.name as dest_station " +
                           "FROM reservations r " +
                           "JOIN users u ON r.user_id = u.user_id " +
-                          "JOIN trains t ON r.train_id = t.train_id " +
+                          "JOIN trains t ON r.line_name = t.line_name " +
                           "JOIN stops s_origin ON r.origin_stop_id = s_origin.stop_id " +
                           "JOIN stops s_dest ON r.dest_stop_id = s_dest.stop_id " +
                           "JOIN stations st_origin ON s_origin.station_id = st_origin.station_id " +
@@ -141,7 +141,7 @@ if ("customer".equals(request.getParameter("reportType")) || selectedCustomer !=
         customerQuery += " WHERE (u.firstname LIKE ? OR u.lastname LIKE ? OR CONCAT(u.firstname, ' ', u.lastname) LIKE ?)";
     }
     
-    customerQuery += " ORDER BY u.lastname, u.firstname, r.booking_date DESC";
+    customerQuery += " ORDER BY u.lastname, u.firstname, r.creationDate DESC";
     
     PreparedStatement psCustomer = conn.prepareStatement(customerQuery);
     if (selectedCustomer != null && !selectedCustomer.trim().isEmpty()) {
@@ -164,7 +164,6 @@ if ("customer".equals(request.getParameter("reportType")) || selectedCustomer !=
     <th>Route</th>
     <th>Travel Date</th>
     <th>Booking Date</th>
-    <th>Passenger Type</th>
     <th>Fare</th>
     <th>Status</th>
 </tr>
@@ -175,7 +174,7 @@ while(customerResult.next()) {
     hasCustomerResults = true;
     String fullName = customerResult.getString("firstname") + " " + customerResult.getString("lastname");
     String route = customerResult.getString("origin_station") + " → " + customerResult.getString("dest_station");
-    String status = customerResult.getString("status");
+    String status = customerResult.getString("isActive");
     
     out.print("<tr>");
     out.print("<td>" + customerResult.getInt("res_id") + "</td>");
@@ -185,8 +184,7 @@ while(customerResult.next()) {
     out.print("<td>" + customerResult.getInt("train_id") + "</td>");
     out.print("<td>" + route + "</td>");
     out.print("<td>" + customerResult.getDate("res_date") + "</td>");
-    out.print("<td>" + customerResult.getTimestamp("booking_date") + "</td>");
-    out.print("<td>" + customerResult.getString("passenger_type").substring(0,1).toUpperCase() + customerResult.getString("passenger_type").substring(1) + "</td>");
+    out.print("<td>" + customerResult.getTimestamp("creationDate") + "</td>");
     out.print("<td>$" + String.format("%.2f", customerResult.getDouble("total_fare")) + "</td>");
     out.print("<td>" + status.substring(0,1).toUpperCase() + status.substring(1) + "</td>");
     out.print("</tr>");

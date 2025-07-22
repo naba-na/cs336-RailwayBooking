@@ -56,7 +56,6 @@
 <%= message %>
 
 <h2>Trains</h2>
-<a href="addTrain.jsp">Add New Train</a>
 
 <table border="1">
 <tr>
@@ -88,16 +87,12 @@ while(trainsResult.next()){
     out.print("<td>$" + String.format("%.2f", trainsResult.getDouble("fareSenior")) + "</td>");
     out.print("<td>$" + String.format("%.2f", trainsResult.getDouble("fareDisabled")) + "</td>");
     out.print("<td>");
-    out.print("<a href='editTrain.jsp?id=" + trainId + "'>Edit</a> | ");
     out.print("<a href='manageSchedules.jsp?deleteType=train&deleteId=" + trainId + "' onclick='return confirm(\"Delete this train? This will also delete all reservations for this train.\")'>Delete</a>");
     out.print("</td>");
     out.print("</tr>");
 }
 %>
 </table>
-
-<h2>Transit Lines</h2>
-<a href="addTransitLine.jsp">Add New Transit Line</a>
 
 <table border="1">
 <tr>
@@ -107,7 +102,6 @@ while(trainsResult.next()){
     <th>Senior Fare</th>
     <th>Disabled Fare</th>
     <th>Trains</th>
-    <th>Actions</th>
 </tr>
 
 <%
@@ -130,17 +124,12 @@ while(linesResult.next()){
     out.print("<td>$" + String.format("%.2f", linesResult.getDouble("fareSenior")) + "</td>");
     out.print("<td>$" + String.format("%.2f", linesResult.getDouble("fareDisabled")) + "</td>");
     out.print("<td>" + linesResult.getInt("train_count") + "</td>");
-    out.print("<td>");
-    out.print("<a href='editTransitLine.jsp?name=" + java.net.URLEncoder.encode(lineName, "UTF-8") + "'>Edit</a>");
-    out.print("</td>");
     out.print("</tr>");
 }
 %>
 </table>
 
 <h2>Stations & Stops</h2>
-<a href="addStation.jsp">Add New Station</a> | 
-<a href="addStop.jsp">Add New Stop</a>
 
 <table border="1">
 <tr>
@@ -177,7 +166,6 @@ while(stopsResult.next()){
     out.print("<td>" + stopsResult.getTime("departure_time") + "</td>");
     out.print("<td>" + (stopsResult.getString("lines") != null ? stopsResult.getString("lines") : "None") + "</td>");
     out.print("<td>");
-    out.print("<a href='editStop.jsp?id=" + stopId + "'>Edit</a> | ");
     out.print("<a href='manageSchedules.jsp?deleteType=stop&deleteId=" + stopId + "' onclick='return confirm(\"Delete this stop?\")'>Delete</a>");
     out.print("</td>");
     out.print("</tr>");

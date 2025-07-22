@@ -63,9 +63,7 @@
 <% } %>
 
 <h2>Train Schedule Management</h2>
-<p>Add, edit, and delete train schedules and routes.</p>
 <a href="manageSchedules.jsp">Manage Schedules</a> | 
-<a href="addSchedule.jsp">Add New Schedule</a>
 
 <h2>Customer Support</h2>
 <p>Manage customer questions and provide answers.</p>
